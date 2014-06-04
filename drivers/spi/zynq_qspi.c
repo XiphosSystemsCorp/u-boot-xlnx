@@ -385,19 +385,26 @@ static void zynq_qspi_copy_write_data(struct zynq_qspi *zqspi,
 static void zynq_qspi_chipselect(struct spi_device *qspi, int is_on)
 {
 	u32 config_reg;
+  u32 lconfig_reg;
 
 	debug("%s: is_on: %d\n", __func__, is_on);
 
 	config_reg = readl(&zynq_qspi_base->confr);
 
 	if (is_on) {
+		lconfig_reg = readl(&zynq_qspi_base->lcr);
+		if (qspi->chip_select)
+			lconfig_reg |= ZYNQ_QSPI_LCFG_U_PAGE;
+		writel(lconfig_reg, &zynq_qspi_base->lcr);
+		
 		/* Select the slave */
-		config_reg &= ~ZYNQ_QSPI_CONFIG_SSCTRL_MASK;
-		config_reg |= (((~(0x0001 << qspi->chip_select)) << 10) &
-				ZYNQ_QSPI_CONFIG_SSCTRL_MASK);
+		config_reg &= ~ ZYNQ_QSPI_CONFIG_PCS_MASK;
 	} else
 		/* Deselect the slave */
-		config_reg |= ZYNQ_QSPI_CONFIG_SSCTRL_MASK;
+		config_reg |= ZYNQ_QSPI_CONFIG_PCS_MASK;
+
+	debug("%s: writing %08x (qspi->chipselect=0x%x)\n", __func__, config_reg,
+    qspi->chip_select);
 
 	writel(config_reg, &zynq_qspi_base->confr);
 }
@@ -896,7 +903,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 								max_hz : qspi->qspi.master.speed_hz;
 	qspi->qspi.master.is_dual = is_dual;
 	qspi->qspi.mode = mode;
-	qspi->qspi.chip_select = 0;
+	qspi->qspi.chip_select = cs;
 	qspi->qspi.bits_per_word = 32;
 	zynq_qspi_setup_transfer(&qspi->qspi, NULL);
 

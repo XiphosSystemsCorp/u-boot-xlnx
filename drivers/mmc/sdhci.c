@@ -276,6 +276,9 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 	if (clock == 0)
 		return 0;
 
+  if (clock > mmc->f_limit)
+    clock = mmc->f_limit;
+
 	if (SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) {
 		/* Version 3.00 divisors must be a multiple of 2. */
 		if (mmc->f_max <= clock)
@@ -294,7 +297,6 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		}
 	}
 	div >>= 1;
-
 	if (host->set_clock)
 		host->set_clock(host->index, div);
 
@@ -430,7 +432,8 @@ int sdhci_init(struct mmc *mmc)
 	return 0;
 }
 
-int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
+int add_sdhci_with_f_limit(struct sdhci_host *host, u32 max_clk, u32 min_clk,
+	u32 f_limit)
 {
 	struct mmc *mmc;
 	unsigned int caps;
@@ -485,6 +488,8 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 			mmc->f_min = mmc->f_max / SDHCI_MAX_DIV_SPEC_200;
 	}
 
+	mmc->f_limit = f_limit;
+
 	mmc->voltages = 0;
 	if (caps & SDHCI_CAN_VDD_330)
 		mmc->voltages |= MMC_VDD_32_33 | MMC_VDD_33_34;
@@ -508,4 +513,9 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	mmc_register(mmc);
 
 	return 0;
+}
+
+int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
+{
+	return add_sdhci_with_f_limit(host, max_clk, min_clk, max_clk);
 }

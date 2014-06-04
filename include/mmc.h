@@ -256,6 +256,7 @@ struct mmc {
 	uint has_init;
 	uint f_min;
 	uint f_max;
+	uint f_limit;
 	int high_capacity;
 	uint bus_width;
 	uint clock;

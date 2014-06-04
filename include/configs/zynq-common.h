@@ -84,6 +84,12 @@
 # define CONFIG_SDHCI
 # define CONFIG_ZYNQ_SDHCI
 # define CONFIG_CMD_MMC
+# if !defined(CONFIG_ZYNQ_SDHCI_FMAX)
+#   define CONFIG_ZYNQ_SDHCI_FMAX 52000000
+# endif
+# if !defined(CONFIG_ZYNQ_SDHCI_FLIMIT)
+#   define CONFIG_ZYNQ_SDHCI_FLIMIT CONFIG_ZYNQ_SDHCI_FMAX
+# endif
 #endif
 
 #ifdef CONFIG_ZYNQ_USB

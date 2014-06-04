@@ -332,4 +332,7 @@ static inline u8 sdhci_readb(struct sdhci_host *host, int reg)
 #endif
 
 int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk);
+
+int add_sdhci_with_f_limit(struct sdhci_host *host, u32 max_clk,
+  u32 min_clk, u32 f_limit);
 #endif /* __SDHCI_HW_H */
