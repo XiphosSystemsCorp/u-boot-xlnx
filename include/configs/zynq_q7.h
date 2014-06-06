@@ -29,6 +29,8 @@
 #define CONFIG_ZYNQ_BOOT_FREEBSD
 #define CONFIG_DEFAULT_DEVICE_TREE	zynq-zed
 
+#define CONFIG_ENV_OFFSET 0x4c0000
+
 #include <configs/zynq-common.h>
 
 #endif /* __CONFIG_ZYNQ_ZED_H */
