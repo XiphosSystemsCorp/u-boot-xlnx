@@ -871,6 +871,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		return NULL;
 
 	is_dual = zynq_qspi_check_is_dual_flash();
+	debug("is_dual = %d", is_dual);
 
 	if (is_dual == -1) {
 		printf("%s: No QSPI device detected based on MIO settings\n",

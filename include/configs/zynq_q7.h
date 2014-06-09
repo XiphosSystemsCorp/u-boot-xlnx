@@ -30,6 +30,8 @@
 #define CONFIG_DEFAULT_DEVICE_TREE	zynq-zed
 
 #define CONFIG_ENV_OFFSET 0x4c0000
+#define CONFIG_CMD_MEMTEST
+#define CONFIG_CMD_BLKTEST
 
 #include <configs/zynq-common.h>
 
