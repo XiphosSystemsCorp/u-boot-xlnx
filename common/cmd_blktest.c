@@ -164,14 +164,14 @@ int do_blktest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	block_dev_desc_t *dev = NULL;
 	disk_partition_t info;
-	int part = 1;
+	int rc = 1;
 	uint32_t start_offset, num_sectors;
 	uint32_t iterations = 100;
 	uint32_t seed = 1234, max_sectors_per_op = 1;
 	bool verbose = false;
 
-	part = get_device_and_partition(argv[1], argv[2], &dev, &info, 1);
-	if (part < 0)
+	rc = get_device(argv[1], argv[2], &dev);
+	if (rc < 0)
 		return 1;
 
 	start_offset = simple_strtoul(argv[3], NULL, 16);
