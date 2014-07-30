@@ -263,7 +263,7 @@ CPPFLAGS += $(patsubst %, -I%, $(BASE_INCLUDE_DIRS))
 CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
-CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
+CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes $(EXTRA_CFLAGS)
 
 ifdef BUILD_TAG
 CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
