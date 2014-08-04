@@ -99,6 +99,7 @@ endif
 
 HOSTCFLAGS_NOPED = $(filter-out -pedantic,$(HOSTCFLAGS))
 HOSTCFLAGS	+= -pedantic
+HOSTCFLAGS += $(EXTRA_CFLAGS)
 
 #########################################################################
 #
