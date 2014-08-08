@@ -13,17 +13,25 @@
 #define CONFIG_SYS_SDRAM_SIZE		(512 * 1024 * 1024)
 
 /* PIM FTDI as  Console */
-#define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE (-4)
-#define CONFIG_SYS_NS16550_CLK (100000000)
-/* This might be off by 0x1000 */
-#define CONFIG_SYS_NS16550_COM1 0x43011000 
-#define CONFIG_CONS_INDEX 1
-
+#ifdef CONSOLE_FTDI
+	#define CONFIG_SYS_NS16550
+	#define CONFIG_SYS_NS16550_SERIAL
+	#define CONFIG_SYS_NS16550_REG_SIZE (-4)
+	#ifndef Q7_LOGIC_CLK_FREQ
+		#error "Please define Q7_LOGIC_CLK_FREQ"
+	#endif
+	#define CONFIG_SYS_NS16550_CLK (Q7_LOGIC_CLK_FREQ)
+	/* This might be off by 0x1000 */
+	#define CONFIG_SYS_NS16550_COM1 0x43011000 
+	#define CONFIG_CONS_INDEX 1
 
 /* PS Serial As Console */
-/* #define CONFIG_ZYNQ_SERIAL_UART0 */
+#elif defined  CONSOLE_UART0
+	#define CONFIG_ZYNQ_SERIAL_UART0
+#else
+	#error "CONSOLE is not set. Please define CONSOLE_FTDI or CONSOLE_UART0."
+#endif
+
 #define CONFIG_ZYNQ_GEM0
 #define CONFIG_ZYNQ_GEM_PHY_ADDR0	0
 

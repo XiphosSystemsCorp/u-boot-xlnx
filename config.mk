@@ -99,6 +99,7 @@ endif
 
 HOSTCFLAGS_NOPED = $(filter-out -pedantic,$(HOSTCFLAGS))
 HOSTCFLAGS	+= -pedantic
+HOSTCFLAGS += $(EXTRA_CFLAGS)
 
 #########################################################################
 #
@@ -235,6 +236,8 @@ ifneq ($(CONFIG_SYS_TEXT_BASE),)
 CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
 endif
 
+CPPFLAGS += $(EXTRA_CFLAGS)
+
 ifeq ($(CONFIG_SPL_BUILD),y)
 CPPFLAGS += -DCONFIG_SPL_BUILD
 ifeq ($(CONFIG_TPL_BUILD),y)
@@ -263,7 +266,7 @@ CPPFLAGS += $(patsubst %, -I%, $(BASE_INCLUDE_DIRS))
 CPPFLAGS += -fno-builtin -ffreestanding -nostdinc	\
 	-isystem $(gccincdir) -pipe $(PLATFORM_CPPFLAGS)
 
-CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
+CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes $(EXTRA_CFLAGS)
 
 ifdef BUILD_TAG
 CFLAGS += -DBUILD_TAG='"$(BUILD_TAG)"'
