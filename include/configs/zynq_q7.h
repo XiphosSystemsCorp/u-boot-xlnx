@@ -54,4 +54,9 @@
 
 #include <configs/zynq-common.h>
 
+// override size
+#define CONFIG_ENV_SIZE (64 << 10) 
+// This needs to become something like 0x1440000
+#define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+
 #endif /* __CONFIG_ZYNQ_ZED_H */
