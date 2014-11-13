@@ -63,4 +63,18 @@
 /* This needs to become something like 0x1440000 */
 #define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
 
+#define CONFIG_HW_WATCHDOG 1
+#define CONFIG_Q7PA3_WATCHDOG 1
+/* TODO: handle the QEYSSAT PA3 configuration */
+#define CONFIG_WATCHDOG_BASEADDR 0x40300000
+
+#undef CONFIG_SPL
+#undef CONFIG_CMD_SPL
+#undef CONFIG_FPGA
+#undef CONFIG_FPGA_XILINX
+#undef CONFIG_FPGA_ZYNQPL
+#undef CONFIG_CMD_FPGA
+#undef CONFIG_FIT
+#undef CONFIG_FIT_VERBOSE
+
 #endif /* __CONFIG_ZYNQ_ZED_H */

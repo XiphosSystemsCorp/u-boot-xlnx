@@ -15,3 +15,4 @@ obj-$(CONFIG_S5P)               += s5p_wdt.o
 obj-$(CONFIG_XILINX_TB_WATCHDOG) += xilinx_tb_wdt.o
 obj-$(CONFIG_BFIN_WATCHDOG)  += bfin_wdt.o
 obj-$(CONFIG_OMAP_WATCHDOG) += omap_wdt.o
+obj-$(CONFIG_Q7PA3_WATCHDOG) += q7_pa3_wdt.o
