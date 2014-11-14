@@ -25,7 +25,7 @@
 #define REG_COMPINT 0x10
 #define REG_COMPRST 0x14
 #define REG_COUNTER 0x18
-#define REG_STATUS 0x1c
+#define REG_STATUS 0x20
 
 #define Q6S_WDT_WD_RESET_ACTIVE 0x80000000
 #define Q6S_WDT_WATCHDOG_ACTIVE 0x4
@@ -84,6 +84,8 @@ void hw_watchdog_init(void)
 		/* set up for 30 seconds */
 		writel((30 * 25000000),&watchdog_base->comp_int);
 		writel((30 * 25000000),&watchdog_base->comp_rst);
+
+		puts("Configuring the watchdog for 30 seconds\n");
 
 		writel(Q6S_WDT_ENABLE1_MAGIC, &watchdog_base->enable1);
 		writel(Q6S_WDT_ENABLE2_MAGIC, &watchdog_base->enable2);
