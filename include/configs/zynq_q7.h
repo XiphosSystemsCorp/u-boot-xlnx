@@ -72,4 +72,49 @@
 #undef CONFIG_FIT
 #undef CONFIG_FIT_VERBOSE
 
+/* declare Q7S default environment */
+#undef CONFIG_EXTRA_ENV_SETTINGS 
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"real_serverip=192.168.200.218\0" \
+	"serverip=192.168.200.218\0" \
+	"gatewayip=192.168.200.1\0" \
+	"ipaddr=192.168.200.241\0" \
+	"dnsip=192.168.200.168\0" \
+	"do_dhcp=set real_serverip ${serverip};set autoload no;dhcp; set serverip ${real_serverip}\0" \
+	"ethact=Gem.e000b000\0" \
+	"ethaddr=00:0a:35:00:01:22\0"	\
+	"netmask=255.255.255.0\0" \
+	"autoload=no\0" \
+	"boot_gold0=run load_gold0 && setenv bootargs ${bootargs} q7boot=gold0 && run bootm_q7\0" \
+	"boot_gold1=run load_gold1 && setenv bootargs ${bootargs} q7boot=gold1 && run bootm_q7\0" \
+	"boot_nom0=run load_nom0 && setenv bootargs ${bootargs} q7boot=nom0 && run bootm_q7\0" \
+	"boot_nom1=run load_nom1 && setenv bootargs ${bootargs} q7boot=nom1 && run bootm_q7\0" \
+	"bootargs=console=ttyPS0,115200 reboot=g panic=2\0" \
+	"bootcmd=run tryboot\0" \
+	"bootm_q7=run config_done; bootm 0x100000 0x1000000 0x500040\0" \
+	"config_done=mw 0xe000a000 0xfdff0000;mw 0xe000a208 0x200\0" \
+	"fdtaddr=500040\0" \
+	"load_gold=sf read 0x100000 0x00a90000 0x370000 && sf read 0x500000 0x00a70000 0x20000 && iminfo 0x500000 && sf read 0x1000000 0x00e00000 0x200000\0" \
+	"load_gold0=sf probe 0 && run load_gold\0" \
+	"load_gold1=sf probe 1 && run load_gold\0" \
+	"load_nom=sf read 0x100000 0x00500000 0x370000 && sf read 0x500000 0x004e0000 0x20000 && iminfo 0x500000 && sf read 0x1000000 0x00870000 0x200000\0" \
+	"load_nom0=sf probe 0 && run load_nom\0" \
+	"load_nom1=sf probe 1 && run load_nom\0" \
+	"sf0add_dtb_gold=0x00a70000\0" \
+	"sf0add_dtb_nom=0x004e0000\0" \
+	"sf0add_initramfs_gold=0x00e00000\0" \
+	"sf0add_initramfs_nom=0x00870000\0" \
+	"sf0add_uimage_gold=0x00a90000\0" \
+	"sf0add_uimage_nom=0x00500000\0" \
+	"sf1add_dtb_gold=0x04a70000\0" \
+	"sf1add_dtb_nom=0x044e0000\0" \
+	"sf1add_initramfs_gold=0x04e00000\0" \
+	"sf1add_initramfs_nom=0x04870000\0" \
+	"sf1add_uimage_gold=0x04a90000\0" \
+	"sf1add_uimage_nom=0x04500000\0" \
+	"start_watchdog=mw 0x40300010 0x1dcd6500;mw 0x40300014 0x1dcd6500;mw 0x40300000 0xb45efa83;mw 0x40300004 0x50ad54ee\0" \
+	"stderr=serial\0" \
+	"stdin=serial\0" \
+	"stdout=serial\0" \
+	"tryboot=run boot_nom0; run boot_nom1; run boot_gold0; run boot_gold1\0" 
 #endif /* __CONFIG_ZYNQ_ZED_H */
