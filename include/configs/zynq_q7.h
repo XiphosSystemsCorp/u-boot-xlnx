@@ -117,4 +117,7 @@
 	"stdin=serial\0" \
 	"stdout=serial\0" \
 	"tryboot=run boot_nom0; run boot_nom1; run boot_gold0; run boot_gold1\0" 
+
+#undef CONFIG_BOOTDELAY
+#define CONFIG_BOOTDELAY 1
 #endif /* __CONFIG_ZYNQ_ZED_H */
