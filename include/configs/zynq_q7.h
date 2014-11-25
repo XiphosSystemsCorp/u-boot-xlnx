@@ -92,7 +92,7 @@
 	"bootargs=console=ttyPS0,115200 reboot=g panic=2\0" \
 	"bootcmd=run tryboot\0" \
 	"bootm_q7=run config_done; bootm 0x100000 0x1000000 0x500040\0" \
-	"config_done=mw 0xe000a000 0xfdff0000;mw 0xe000a208 0x200\0" \
+	"config_done=mw 0xe000a204 0xe00;mw 0xe000a208 0xe00;mw 0xe000a000 0xfdff0000\0" \
 	"fdtaddr=500040\0" \
 	"load_gold=sf read 0x100000 0x00a90000 0x370000 && sf read 0x500000 0x00a70000 0x20000 && iminfo 0x500000 && sf read 0x1000000 0x00e00000 0x200000\0" \
 	"load_gold0=sf probe 0 && run load_gold\0" \
