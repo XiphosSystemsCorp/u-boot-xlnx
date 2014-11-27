@@ -172,7 +172,9 @@ void env_relocate_spec(void)
 #ifdef CONFIG_ZYNQ_Q7
 	env_offset_primary = env_offset_list[gd->q7_env_select];
 	env_offset_redundant = env_offset_primary + 0x10000;
-	env_spi_cs = q7_env_spi_cs_list[gd->q7_env_select];
+  
+  /* For now, the PA3 controls the chipselect line, so leave this at zero */
+	env_spi_cs = 0;
 	printf("Q7 Environment offset: Prim.: %x Red: %x SPI:0.%d\n",env_offset_primary, env_offset_redundant,env_spi_cs);
 #endif
 		
@@ -185,7 +187,7 @@ void env_relocate_spec(void)
 	}
 
 
-	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, env_spi_cs, 
+	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, env_spi_cs,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 	if (!env_flash) {
 		set_default_env("!spi_flash_probe() failed");
