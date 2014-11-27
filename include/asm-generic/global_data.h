@@ -51,6 +51,9 @@ typedef struct global_data {
 #endif
 	unsigned long env_addr;	/* Address  of Environment struct */
 	unsigned long env_valid;	/* Checksum of Environment valid? */
+#ifdef CONFIG_ZYNQ_Q7
+  unsigned long q7_env_select;
+#endif
 
 	unsigned long ram_top;	/* Top address of RAM used by U-Boot */
 

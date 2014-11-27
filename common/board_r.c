@@ -413,6 +413,7 @@ static int should_load_env(void)
 
 static int initr_env(void)
 {
+  puts("initr_env\n");
 	/* initialize environment */
 	if (should_load_env())
 		env_relocate();

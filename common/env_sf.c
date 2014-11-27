@@ -29,19 +29,42 @@
 # define CONFIG_ENV_SPI_MODE	SPI_MODE_3
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_ZYNQ_Q7
+/* TODO: Change these offsets to MACROS */
+static ulong env_offset_list[4] = {
+	0x4c0000, 0x4c0000, 0x14c0000, 0x14c0000
+};
+static char * q7_env_name_list[4] = {
+	"qspi0-uboot_env_nom",
+	"qspi1-uboot_env_nom",
+	"qspi0-uboot_env_gold",
+	"qspi1-uboot_env_gold"
+};
+static int q7_env_spi_cs_list[4] = {
+  0, 1, 0, 1 };
+
+/* #define gd->q7_env_select 0 */
+#define gd->q7_env_select gd->q7_env_select
+#endif
+
 #ifdef CONFIG_ENV_OFFSET_REDUND
+static ulong env_offset_primary = CONFIG_ENV_OFFSET;
+static ulong env_offset_redundant = CONFIG_ENV_OFFSET_REDUND;
 static ulong env_offset		= CONFIG_ENV_OFFSET;
 static ulong env_new_offset	= CONFIG_ENV_OFFSET_REDUND;
+static ulong env_spi_cs = CONFIG_ENV_SPI_CS;
+
 
 #define ACTIVE_FLAG	1
 #define OBSOLETE_FLAG	0
 #endif /* CONFIG_ENV_OFFSET_REDUND */
 
-DECLARE_GLOBAL_DATA_PTR;
 
 char *env_name_spec = "SPI Flash";
 
-static struct spi_flash *env_flash;
+static struct spi_flash *env_flash = NULL;
 
 #if defined(CONFIG_ENV_OFFSET_REDUND)
 int saveenv(void)
@@ -52,9 +75,11 @@ int saveenv(void)
 	u32	saved_size, saved_offset, sector = 1;
 	int	ret;
 
+	printf("Environment offset: Prim.: %x Red: %x SPI:0.%d\n",env_offset_primary, env_offset_redundant,env_spi_cs);
+
 	if (!env_flash) {
 		env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS,
-			CONFIG_ENV_SPI_CS,
+			env_spi_cs,
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 		if (!env_flash) {
 			set_default_env("!spi_flash_probe() failed");
@@ -72,11 +97,11 @@ int saveenv(void)
 	env_new.flags	= ACTIVE_FLAG;
 
 	if (gd->env_valid == 1) {
-		env_new_offset = CONFIG_ENV_OFFSET_REDUND;
-		env_offset = CONFIG_ENV_OFFSET;
+		env_new_offset = env_offset_redundant;
+		env_offset = env_offset_primary;
 	} else {
-		env_new_offset = CONFIG_ENV_OFFSET;
-		env_offset = CONFIG_ENV_OFFSET_REDUND;
+		env_new_offset = env_offset_primary;
+		env_offset = env_offset_redundant;
 	}
 
 	/* Is the sector larger than the env (i.e. embedded) */
@@ -146,6 +171,13 @@ void env_relocate_spec(void)
 	env_t *tmp_env2 = NULL;
 	env_t *ep = NULL;
 
+#ifdef CONFIG_ZYNQ_Q7
+	env_offset_primary = env_offset_list[gd->q7_env_select];
+	env_offset_redundant = env_offset_primary + 0x10000;
+	env_spi_cs = q7_env_spi_cs_list[gd->q7_env_select];
+	printf("Q7 Environment offset: Prim.: %x Red: %x SPI:0.%d\n",env_offset_primary, env_offset_redundant,env_spi_cs);
+#endif
+		
 	tmp_env1 = (env_t *)malloc(CONFIG_ENV_SIZE);
 	tmp_env2 = (env_t *)malloc(CONFIG_ENV_SIZE);
 
@@ -154,14 +186,15 @@ void env_relocate_spec(void)
 		goto out;
 	}
 
-	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
+
+	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, env_spi_cs, 
 			CONFIG_ENV_SPI_MAX_HZ, CONFIG_ENV_SPI_MODE);
 	if (!env_flash) {
 		set_default_env("!spi_flash_probe() failed");
 		goto out;
 	}
 
-	ret = spi_flash_read(env_flash, CONFIG_ENV_OFFSET,
+	ret = spi_flash_read(env_flash, env_offset_primary,
 				CONFIG_ENV_SIZE, tmp_env1);
 	if (ret) {
 		set_default_env("!spi_flash_read() failed");
@@ -171,7 +204,7 @@ void env_relocate_spec(void)
 	if (crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc)
 		crc1_ok = 1;
 
-	ret = spi_flash_read(env_flash, CONFIG_ENV_OFFSET_REDUND,
+	ret = spi_flash_read(env_flash, env_offset_redundant,
 				CONFIG_ENV_SIZE, tmp_env2);
 	if (!ret) {
 		if (crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc)
@@ -213,6 +246,12 @@ void env_relocate_spec(void)
 		error("Cannot import environment: errno = %d\n", errno);
 		set_default_env("env_import failed");
 	}
+#ifdef CONFIG_ZYNQ_Q7
+	else {
+		/* set environment variable to tell linux which u-boot environment we used */
+		setenv("uboot_env_mtd",q7_env_name_list[gd->q7_env_select]);
+	}
+#endif
 
 err_read:
 	spi_flash_free(env_flash);
@@ -277,7 +316,7 @@ int saveenv(void)
 	puts("Writing to SPI flash...");
 	ret = spi_flash_write(env_flash, CONFIG_ENV_OFFSET,
 		CONFIG_ENV_SIZE, &env_new);
-	if (ret)
+	f (ret)
 		goto done;
 
 	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
@@ -331,5 +370,11 @@ int env_init(void)
 	gd->env_addr = (ulong)&default_environment[0];
 	gd->env_valid = 1;
 
+#ifdef CONFIG_ZYNQ_Q7 
+	{
+		/* TODO: Change addresses and lengths to MACROS */
+		gd->q7_env_select = (*((unsigned int *)0x40100008) >> 5) & 3; 
+	}
+#endif /* CONFIG_ZYNQ_Q7 */
 	return 0;
 }

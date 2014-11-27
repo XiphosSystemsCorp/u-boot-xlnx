@@ -62,6 +62,7 @@
 #define CONFIG_ENV_SIZE (64 << 10) 
 /* This needs to become something like 0x1440000 */
 #define CONFIG_ENV_OFFSET_REDUND (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+#define CONFIG_ZYNQ_Q7
 
 #undef CONFIG_SPL
 #undef CONFIG_CMD_SPL
