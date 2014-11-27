@@ -45,8 +45,6 @@ static char * q7_env_name_list[4] = {
 static int q7_env_spi_cs_list[4] = {
   0, 1, 0, 1 };
 
-/* #define gd->q7_env_select 0 */
-#define gd->q7_env_select gd->q7_env_select
 #endif
 
 #ifdef CONFIG_ENV_OFFSET_REDUND
