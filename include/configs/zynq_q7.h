@@ -13,7 +13,7 @@
 #define CONFIG_SYS_SDRAM_SIZE		(512 * 1024 * 1024)
 
 /* PIM FTDI as  Console */
-#ifdef CONSOLE_FTDI
+#ifdef CONSOLE_ZYNQ_PL
 	#define CONFIG_SYS_NS16550
 	#define CONFIG_SYS_NS16550_SERIAL
 	#define CONFIG_SYS_NS16550_REG_SIZE (-4)
@@ -28,6 +28,8 @@
 /* PS Serial As Console */
 #elif defined  CONSOLE_UART0
 	#define CONFIG_ZYNQ_SERIAL_UART0
+#elif defined  CONSOLE_UART1
+	#define CONFIG_ZYNQ_SERIAL_UART1
 #else
 	#error "CONSOLE is not set. Please define CONSOLE_FTDI or CONSOLE_UART0."
 #endif
