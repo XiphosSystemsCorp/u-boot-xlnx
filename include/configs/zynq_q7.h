@@ -31,7 +31,7 @@
 #elif defined  CONSOLE_UART1
 	#define CONFIG_ZYNQ_SERIAL_UART1
 #else
-	#error "CONSOLE is not set. Please define CONSOLE_FTDI or CONSOLE_UART0."
+	#error "CONSOLE is not set. Please define CONSOLE_ZYNQ_PL or CONSOLE_UART0 or CONSOLE_UART1."
 #endif
 
 #define CONFIG_ZYNQ_GEM0
