@@ -53,6 +53,7 @@
 #define CONFIG_ENV_OFFSET 0x4c0000
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_CMD_BLKTEST
+#define CONFIG_CMD_SETEXPR
 
 #include <configs/zynq-common.h>
 
