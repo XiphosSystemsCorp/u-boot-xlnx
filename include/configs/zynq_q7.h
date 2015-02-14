@@ -54,6 +54,7 @@
 #define CONFIG_CMD_MEMTEST
 #define CONFIG_CMD_BLKTEST
 #define CONFIG_CMD_SETEXPR
+#define CONFIG_PREBOOT
 
 #include <configs/zynq-common.h>
 
