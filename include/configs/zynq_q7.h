@@ -39,6 +39,9 @@
 #undef CONFIG_FIT
 #undef CONFIG_FIT_VERBOSE
 
+#undef CONFIG_BOOTDELAY
+#define CONFIG_BOOTDELAY 1
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootcmd=echo; echo ' ** UNABLE TO LOAD ENV FROM FLASH **'; echo\0" \
 	"config_done=mw 0xe000a204 0xe00;mw 0xe000a208 0xe00;mw 0xe000a000 0xfdff0000\0" \
