@@ -22,7 +22,7 @@
 #define CONFIG_ZYNQ_QSPI_SINGLE_FLASH
 
 #undef  CONFIG_ENV_OFFSET
-#define CONFIG_ENV_OFFSET 0x4c0000
+#define CONFIG_ENV_OFFSET 0x0500000
 
 #include <configs/zynq-common.h>
 
