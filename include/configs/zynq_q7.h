@@ -45,15 +45,12 @@
 #define CONFIG_BOOTDELAY 1
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"preboot=run config_done\0" \
 	"bootcmd=echo; echo ' ** UNABLE TO LOAD ENV FROM FLASH **'; echo\0" \
-	"config_done=mw 0xe000a204 0xe00;mw 0xe000a208 0xe00;mw 0xe000a000 0xfdff0000\0" \
-	"load_nom="\
-		"sf read 0x0100000 0x00500000 0x370000 && "\
-		"sf read 0x0500000 0x004e0000 0x020000 && iminfo 0x500000 && "\
-		"sf read 0x1000000 0x00870000 0x200000\0" \
+	"config_done=echo 'Sending config_done signal' && " \
+		"mw 0xe000a204 0xe00; mw 0xe000a208 0xe00; mw 0xe000a000 0xfdff0000; " \
+		"mw 0xe000a000 0xfdff0200\0" \
 	"single=setenv bootargs console=ttyPS0,115200 single;" \
-		"sf probe 0;" \
-		"run load_nom;" \
 		"bootm 0x100000 0x1000000 0x500040\0"
 
 
