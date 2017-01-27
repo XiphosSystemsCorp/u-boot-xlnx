@@ -221,12 +221,71 @@ out:
 	free(tmp_env2);
 }
 #else
+
+#ifdef CONFIG_TARGET_ZYNQ_Q7
+
+void send_config_done_to_pa3(void)
+{
+	volatile u32* register_addr = NULL;
+	printf("Sending config_done signal\n");
+
+	/* Everything volatile to make sure the compiler does not dumbly
+	    optimize everything out */
+	register_addr = (volatile u32*)XIPHOS_Q7_PA3_CONFIGDONE_DIRECTION;
+	(*register_addr) = (volatile u32)XIPHOS_Q7_PA3_CONFIGDONE_OUTPUT;
+
+	register_addr = (volatile u32*)XIPHOS_Q7_PA3_CONFIGDONE_MODE;
+	(*register_addr) = (volatile u32)XIPHOS_Q7_PA3_CONFIGDONE_OUTPUT;
+
+	register_addr = (volatile u32*)XIPHOS_Q7_PA3_PA3_CONFIGDONE_REG;
+	(*register_addr) = (volatile u32)XIPHOS_Q7_PA3_CONFIGDONE_ZERO_VALUE;
+	(*register_addr) = (volatile u32)XIPHOS_Q7_PA3_CONFIGDONE_ONE_VALUE;
+}
+
+u32 get_env_offset_from_pa3(void)
+{
+	char* pa3_status_addr = NULL;
+	char pa3_status = 0;
+	char pa3_copy = 0;
+	u32  found_offset = 0;
+
+	/* Get the running u-boot copy from the ProASIC3 */
+	pa3_status_addr = (char*)XIPHOS_Q7_PA3_STATUS_ADDRESS;
+	pa3_status = *pa3_status_addr;
+	pa3_copy = (pa3_status & XIPHOS_Q7_PA3_MASK_FOR_COPY);
+
+	/* Depending on the running copy,
+	the offset for the environment on flash is going to be different */
+	switch(pa3_copy) {
+		case XIPHOS_Q7_PA3_QSPI0_NOM_COPY:
+			found_offset = (XIPHOS_Q7_QSPI0_NOM_OFFSET + CONFIG_ENV_OFFSET);
+			break;
+		case XIPHOS_Q7_PA3_QSPI0_GOLD_COPY:
+			found_offset = (XIPHOS_Q7_QSPI0_GOLD_OFFSET + CONFIG_ENV_OFFSET);
+			break;
+		case XIPHOS_Q7_PA3_QSPI1_NOM_COPY:
+			found_offset = (XIPHOS_Q7_QSPI1_NOM_OFFSET + CONFIG_ENV_OFFSET);
+			break;
+		case XIPHOS_Q7_PA3_QSPI1_GOLD_COPY:
+			found_offset = (XIPHOS_Q7_QSPI1_GOLD_OFFSET + CONFIG_ENV_OFFSET);
+			break;
+
+		default:
+			set_default_env("!Cannot read flash copy from ProASIC3");
+	}
+
+	return found_offset;
+}
+
+#endif
+
 int saveenv(void)
 {
 	u32	saved_size, saved_offset, sector = 1;
 	char	*saved_buffer = NULL;
 	int	ret = 1;
 	env_t	env_new;
+	u32     env_offset = CONFIG_ENV_OFFSET;
 
 	if (!env_flash) {
 		env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS,
@@ -238,10 +297,18 @@ int saveenv(void)
 		}
 	}
 
+#ifdef CONFIG_TARGET_ZYNQ_Q7
+	env_offset = get_env_offset_from_pa3();
+	if (!env_offset) {
+		set_default_env("!Bad offset from get_env_offset_from_pa3()");
+		goto done;
+	}
+#endif
+
 	/* Is the sector larger than the env (i.e. embedded) */
 	if (CONFIG_ENV_SECT_SIZE > CONFIG_ENV_SIZE) {
 		saved_size = CONFIG_ENV_SECT_SIZE - CONFIG_ENV_SIZE;
-		saved_offset = CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE;
+		saved_offset = env_offset + CONFIG_ENV_SIZE;
 		saved_buffer = malloc(saved_size);
 		if (!saved_buffer)
 			goto done;
@@ -263,13 +330,13 @@ int saveenv(void)
 		goto done;
 
 	puts("Erasing SPI flash...");
-	ret = spi_flash_erase(env_flash, CONFIG_ENV_OFFSET,
+	ret = spi_flash_erase(env_flash, env_offset,
 		sector * CONFIG_ENV_SECT_SIZE);
 	if (ret)
 		goto done;
 
 	puts("Writing to SPI flash...");
-	ret = spi_flash_write(env_flash, CONFIG_ENV_OFFSET,
+	ret = spi_flash_write(env_flash, env_offset,
 		CONFIG_ENV_SIZE, &env_new);
 	if (ret)
 		goto done;
@@ -293,8 +360,16 @@ int saveenv(void)
 
 void env_relocate_spec(void)
 {
+	u32 env_offset = CONFIG_ENV_OFFSET;
+
 	int ret;
 	char *buf = NULL;
+
+#ifdef CONFIG_TARGET_ZYNQ_Q7
+	/* A config_done MUST be sent to ProASIC3 before flash_probe
+	   Otherwise, PA3 keep QSPI control, resulting in undefined behavior */
+	send_config_done_to_pa3();
+#endif
 
 	buf = (char *)memalign(ARCH_DMA_MINALIGN, CONFIG_ENV_SIZE);
 	env_flash = spi_flash_probe(CONFIG_ENV_SPI_BUS, CONFIG_ENV_SPI_CS,
@@ -306,8 +381,15 @@ void env_relocate_spec(void)
 		return;
 	}
 
-	ret = spi_flash_read(env_flash,
-		CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE, buf);
+#ifdef CONFIG_TARGET_ZYNQ_Q7
+	env_offset = get_env_offset_from_pa3();
+	if (!env_offset) {
+		set_default_env("!Bad offset from get_env_offset_from_pa3()");
+		goto out;
+	}
+#endif
+
+	ret = spi_flash_read(env_flash, env_offset, CONFIG_ENV_SIZE, buf);
 	if (ret) {
 		set_default_env("!spi_flash_read() failed");
 		goto out;
