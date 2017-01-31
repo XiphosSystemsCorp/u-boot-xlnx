@@ -369,6 +369,8 @@ void env_relocate_spec(void)
 	/* A config_done MUST be sent to ProASIC3 before flash_probe
 	   Otherwise, PA3 keep QSPI control, resulting in undefined behavior */
 	send_config_done_to_pa3();
+	// Make sure PA3 had enough time to give up control
+	udelay (1000);
 #endif
 
 	buf = (char *)memalign(ARCH_DMA_MINALIGN, CONFIG_ENV_SIZE);
