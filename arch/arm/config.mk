@@ -21,6 +21,12 @@ PLATFORM_RELFLAGS += $(call cc-option, -msoft-float) \
 
 PLATFORM_CPPFLAGS += -D__ARM__
 
+ifdef CONFIG_ARM64
+PLATFORM_ELFFLAGS += -B aarch64 -O elf64-littleaarch64
+else
+PLATFORM_ELFFLAGS += -B arm -O elf32-littlearm
+endif
+
 # Choose between ARM/Thumb instruction sets
 ifeq ($(CONFIG_SYS_THUMB_BUILD),y)
 AFLAGS_IMPLICIT_IT	:= $(call as-option,-Wa$(comma)-mimplicit-it=always)
