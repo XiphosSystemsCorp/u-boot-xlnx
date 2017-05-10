@@ -265,18 +265,32 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	char *endp;
 	int ret = 1;
 	int dev = 0;
-	loff_t offset, len, maxsize;
+	loff_t offset = 0;
+	loff_t len = 0;
+	loff_t maxsize = 0;
 
-	if (argc < 3)
+	if (argc < 3) {
 		return -1;
+	}
 
 	addr = simple_strtoul(argv[1], &endp, 16);
-	if (*argv[1] == 0 || *endp != 0)
+	if (*argv[1] == 0 || *endp != 0) {
 		return -1;
+	}
 
 	if (mtd_arg_off_size(argc - 2, &argv[2], &dev, &offset, &len,
-			     &maxsize, MTD_DEV_TYPE_NOR, flash->size))
+			     &maxsize, MTD_DEV_TYPE_NOR, flash->size)) {
 		return -1;
+	}
+
+	/* MTD's values all use 32bits BUT mtd_arg_off() uses 64bits
+	 * Catch overflow here, as the result would be unpredictable! */
+	if ( (offset  > 0xFFFFFFFF) ||
+	     (len     > 0xFFFFFFFF) ||
+	     (maxsize > 0xFFFFFFFF) ) {
+		printf("Offset, len or size exceed 32bits!\n");
+		return 1;
+	}
 
 	/* Consistency checking */
 	if (offset + len > flash->size) {
@@ -320,19 +334,32 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 {
 	int ret;
 	int dev = 0;
-	loff_t offset, len, maxsize;
-	ulong size;
+	loff_t offset = 0;
+	loff_t len = 0;
+	loff_t maxsize = 0;
+	ulong size = 0;
 
-	if (argc < 3)
+	if (argc < 3) {
 		return -1;
+	}
 
 	if (mtd_arg_off(argv[1], &dev, &offset, &len, &maxsize,
 			MTD_DEV_TYPE_NOR, flash->size))
 		return -1;
 
+	/* MTD's values all use 32bits BUT mtd_arg_off() uses 64bits
+	 * Catch overflow here, as the result would be unpredictable! */
+	if ( (offset  > 0xFFFFFFFF) ||
+	     (len     > 0xFFFFFFFF) ||
+	     (maxsize > 0xFFFFFFFF) ) {
+		printf("Offset, len or size exceed 32bits!\n");
+		return 1;
+	}
+
 	ret = sf_parse_len_arg(argv[2], &size);
-	if (ret != 1)
+	if (ret != 1) {
 		return -1;
+	}
 
 	/* Consistency checking */
 	if (offset + size > flash->size) {
@@ -351,11 +378,13 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 static int do_spi_protect(int argc, char * const argv[])
 {
 	int ret = 0;
-	loff_t start, len;
+	loff_t start = 0;
+	loff_t len = 0;
 	bool prot = false;
 
-	if (argc != 4)
+	if (argc != 4) {
 		return -1;
+	}
 
 	if (!str2off(argv[2], &start)) {
 		puts("start sector is not a valid number\n");
@@ -367,12 +396,23 @@ static int do_spi_protect(int argc, char * const argv[])
 		return 1;
 	}
 
-	if (strcmp(argv[1], "lock") == 0)
+	if (strcmp(argv[1], "lock") == 0) {
 		prot = true;
-	else if (strcmp(argv[1], "unlock") == 0)
+	}
+	else if (strcmp(argv[1], "unlock") == 0) {
 		prot = false;
-	else
+	}
+	else {
 		return -1;  /* Unknown parameter */
+	}
+
+	/* MTD's values all use 32bits BUT str2off() is 64bits
+	 * Catch overflow here, as the result would be unpredictable! */
+	if ( (start  > 0xFFFFFFFF) ||
+	     (len    > 0xFFFFFFFF) ) {
+		printf("start or len value exceed 32bits!\n");
+		return 1;
+	}
 
 	ret = spi_flash_protect(flash, start, len, prot);
 
@@ -614,5 +654,6 @@ U_BOOT_CMD(
 	"					  or to start of mtd `partition'\n"
 	"sf protect lock/unlock sector len	- protect/unprotect 'len' bytes starting\n"
 	"					  at address 'sector'\n"
+	"NOTE: All values are assumed to be hexadecimal numbers!"
 	SF_TEST_HELP
 );
