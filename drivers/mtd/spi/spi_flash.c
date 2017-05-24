@@ -785,7 +785,7 @@ int sst_write_bp(struct spi_flash *flash, u32 offset, size_t len,
 static void stm_get_locked_range(struct spi_flash *flash, u8 sr, loff_t *ofs,
 				 u32 *len)
 {
-	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
+	u8 mask = SR_BP3 | SR_BP2 | SR_BP1 | SR_BP0;
 	int shift = ffs(mask) - 1;
 	int pow;
 
@@ -803,8 +803,7 @@ static void stm_get_locked_range(struct spi_flash *flash, u8 sr, loff_t *ofs,
 /*
  * Return 1 if the entire region is locked, 0 otherwise
  */
-static int stm_is_locked_sr(struct spi_flash *flash, u32 ofs, u32 len,
-			    u8 sr)
+static int stm_is_locked_sr(struct spi_flash *flash, u32 ofs, u32 len, u8 sr)
 {
 	loff_t lock_offs;
 	u32 lock_len;
@@ -825,80 +824,127 @@ int stm_is_locked(struct spi_flash *flash, u32 ofs, size_t len)
 {
 	int status;
 	u8 sr;
-
+#ifdef CONFIG_SF_DUAL_FLASH
+	if (flash->dual_flash > SF_SINGLE_FLASH) {
+		spi_flash_dual(flash, &ofs);
+	}
+#endif
 	status = read_sr(flash, &sr);
-	if (status < 0)
+	if (status < 0) {
 		return status;
+	}
 
 	return stm_is_locked_sr(flash, ofs, len, sr);
 }
 
 /*
  * Lock a region of the flash. Compatible with ST Micro and similar flash.
- * Supports only the block protection bits BP{0,1,2} in the status register
+ * Supports only the block protection bits BP{0,1,2,3} in the status register
  * (SR). Does not support these features found in newer SR bitfields:
  *   - TB: top/bottom protect - only handle TB=0 (top protect)
  *   - SEC: sector/block protect - only handle SEC=0 (block protect)
  *   - CMP: complement protect - only support CMP=0 (range is not complemented)
  *
- * Sample table portion for 8MB flash (Winbond w25q64fw):
+ * Sample table portion for 128MB flash (Micron N25Q00AA):
  *
- *   SEC  |  TB   |  BP2  |  BP1  |  BP0  |  Prot Length  | Protected Portion
+ *   SEC  |  TB   |  BP3  |  BP2  |  BP1  |  BP0  |  Protected Portion
  *  --------------------------------------------------------------------------
- *    X   |   X   |   0   |   0   |   0   |  NONE         | NONE
- *    0   |   0   |   0   |   0   |   1   |  128 KB       | Upper 1/64
- *    0   |   0   |   0   |   1   |   0   |  256 KB       | Upper 1/32
- *    0   |   0   |   0   |   1   |   1   |  512 KB       | Upper 1/16
- *    0   |   0   |   1   |   0   |   0   |  1 MB         | Upper 1/8
- *    0   |   0   |   1   |   0   |   1   |  2 MB         | Upper 1/4
- *    0   |   0   |   1   |   1   |   0   |  4 MB         | Upper 1/2
- *    X   |   X   |   1   |   1   |   1   |  8 MB         | ALL
+ *    X   |   X   |   0   |   0   |   0   |   0   |  NONE
+ *    0   |   0   |   0   |   0   |   0   |   1   |  Sector 2047
+ *    0   |   0   |   0   |   0   |   1   |   0   |  Sectors 2046 to 2047
+ *    0   |   0   |   0   |   0   |   1   |   1   |  Sectors 2044 to 2047
+ *    0   |   0   |   0   |   1   |   0   |   0   |  Sectors 2040 to 2047
+ *    0   |   0   |   0   |   1   |   0   |   1   |  Sectors 2032 to 2047
+ *    0   |   0   |   0   |   1   |   1   |   0   |  Sectors 2016 to 2047
+ *    X   |   X   |   0   |   1   |   1   |   1   |  Sectors 1984 to 2047
+ *    X   |   X   |   1   |   0   |   0   |   0   |  Sectors 1920 to 2047
+ *    X   |   X   |   1   |   0   |   0   |   1   |  Sectors 1792 to 2047
+ *    X   |   X   |   1   |   0   |   1   |   0   |  Sectors 1536 to 2047
+ *    X   |   X   |   1   |   0   |   1   |   1   |  Sectors 1024 to 2047
+ *    X   |   X   |   1   |   1   |   0   |   0   |  ALL
+ *    X   |   X   |   1   |   1   |   0   |   1   |  ALL
+ *    X   |   X   |   1   |   1   |   1   |   0   |  ALL
+ *    X   |   X   |   1   |   1   |   1   |   1   |  ALL
  *
  * Returns negative on errors, 0 on success.
  */
 int stm_lock(struct spi_flash *flash, u32 ofs, size_t len)
 {
-	u8 status_old, status_new;
-	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
-	u8 shift = ffs(mask) - 1, pow, val;
-	int ret;
+	uint8_t status_old = 0;
+	uint8_t status_new = 0;
 
+	u8 lock_mask = SR_BP3 | SR_BP2 | SR_BP1 | SR_BP0;
+	u8 lock_continuous = 0;
+	u8 lock_value = 0;
+	u32 pow = 0;
+	u32 chip_size = flash->size;
+	u32 size_to_lock = ofs + len;
+	u32 lock_addr = ofs;
+	int ret = -1;
+
+#ifdef CONFIG_SF_DUAL_FLASH
+	chip_size = flash->size / 2;
+
+	if (flash->dual_flash > SF_SINGLE_FLASH) {
+		spi_flash_dual(flash, &lock_addr);
+	}
+	size_to_lock = lock_addr + len;
+#endif
 	ret = read_sr(flash, &status_old);
-	if (ret < 0)
+	if (ret < 0) {
 		return ret;
-
-	/* SPI NOR always locks to the end */
-	if (ofs + len != flash->size) {
-		/* Does combined region extend to end? */
-		if (!stm_is_locked_sr(flash, ofs + len, flash->size - ofs - len,
-				      status_old))
-			return -EINVAL;
-		len = flash->size - ofs;
 	}
 
-	/*
-	 * Need smallest pow such that:
-	 *
-	 *   1 / (2^pow) <= (len / size)
-	 *
-	 * so (assuming power-of-2 size) we do:
-	 *
-	 *   pow = ceil(log2(size / len)) = log2(size) - floor(log2(len))
-	 */
-	pow = ilog2(flash->size) - ilog2(len);
-	val = mask - (pow << shift);
-	if (val & ~mask)
-		return -EINVAL;
+	/* Check if we try to lock less than all the flash chip
+	 * If so, issue a warning but keep going */
+	if ( (size_to_lock < chip_size) &&
+	     (stm_is_locked_sr(flash, lock_addr, size_to_lock, status_old)) ) {
+		printf("SF: Warning, locking a larger segment than requested\n");
+	}
+
+	/* If we are going to lock the whole chip, just use the lock mask */
+	if (size_to_lock >= chip_size) {
+		lock_value = lock_mask;
+	}
+	else {
+		/* Calculate the "aligned_mask"
+		 * On chips with more than 3 locks bits, bits are not aligned
+		 * As such, lock bits as they were continous
+		 * Then use that to determine the actual lock_value */
+		lock_continuous = 1;
+		pow = 1;
+		while ( (pow*flash->sector_size) < size_to_lock ) {
+			lock_continuous = lock_continuous + 1;
+			pow = pow << 1;
+
+			/* Check against 4bits value (0xF)
+			 * Chips has 4 bits lock, higher is wrong */
+			if (lock_continuous > 0xF) {
+				debug("SF: Unlock size exceed number of lock bits!\n");
+				return -EINVAL;
+			}
+		}
+
+		/* Here we convert "continuous" lock bits to actual lock mask
+		 * SR_BP0, SR_BP1 and SR_BP2 are contiguous, SR_BP3 is not */
+		if (lock_continuous > 0x7) {
+			lock_value = SR_BP3 + ((lock_continuous & 0x7) << SR_BP0);
+		}
+		else {
+			lock_value = (lock_continuous << SR_BP0);
+		}
+	}
 
 	/* Don't "lock" with no region! */
-	if (!(val & mask))
+	if (!(lock_value & lock_mask)) {
 		return -EINVAL;
+	}
+	status_new = (status_old & ~lock_mask) | lock_value;
 
-	status_new = (status_old & ~mask) | val;
-
-	/* Only modify protection if it will not unlock other areas */
-	if ((status_new & mask) <= (status_old & mask))
+	/* Only modify protection if it will not lock other areas */
+	if ((status_new & lock_mask) <= (status_old & lock_mask)) {
 		return -EINVAL;
+	}
 
 	write_sr(flash, status_new);
 
@@ -912,43 +958,76 @@ int stm_lock(struct spi_flash *flash, u32 ofs, size_t len)
  */
 int stm_unlock(struct spi_flash *flash, u32 ofs, size_t len)
 {
-	uint8_t status_old, status_new;
-	u8 mask = SR_BP2 | SR_BP1 | SR_BP0;
-	u8 shift = ffs(mask) - 1, pow, val;
-	int ret;
+	uint8_t status_old = 0;
+	uint8_t status_new = 0;
 
+	u8 lock_mask = SR_BP3 | SR_BP2 | SR_BP1 | SR_BP0;
+	u8 lock_continuous = 0;
+	u8 lock_value = 0;
+	u32 pow = 0;
+	u32 chip_size = flash->size;
+	u32 size_to_unlock = ofs + len;
+	u32 unlock_addr = ofs;
+	int ret = -1;
+
+#ifdef CONFIG_SF_DUAL_FLASH
+	chip_size = flash->size / 2;
+
+	if (flash->dual_flash > SF_SINGLE_FLASH) {
+		spi_flash_dual(flash, &unlock_addr);
+	}
+	size_to_unlock = unlock_addr + len;
+#endif
 	ret = read_sr(flash, &status_old);
-	if (ret < 0)
+	if (ret < 0) {
 		return ret;
-
-	/* Cannot unlock; would unlock larger region than requested */
-	if (stm_is_locked_sr(flash, ofs - flash->erase_size, flash->erase_size,
-			     status_old))
-		return -EINVAL;
-	/*
-	 * Need largest pow such that:
-	 *
-	 *   1 / (2^pow) >= (len / size)
-	 *
-	 * so (assuming power-of-2 size) we do:
-	 *
-	 *   pow = floor(log2(size / len)) = log2(size) - ceil(log2(len))
-	 */
-	pow = ilog2(flash->size) - order_base_2(flash->size - (ofs + len));
-	if (ofs + len == flash->size) {
-		val = 0; /* fully unlocked */
-	} else {
-		val = mask - (pow << shift);
-		/* Some power-of-two sizes are not supported */
-		if (val & ~mask)
-			return -EINVAL;
 	}
 
-	status_new = (status_old & ~mask) | val;
+	/* Check if we try to unlock less than all the flash chip
+	 * If so, issue a warning but keep going */
+	if ( (size_to_unlock < chip_size) &&
+	     (stm_is_locked_sr(flash, unlock_addr, size_to_unlock, status_old)) ) {
+		printf("SF: Warning, unlocking a larger segment than requested\n");
+	}
+
+	/* If we unlock the whole chip, use lock_value = 0 and carry on */
+	if ( size_to_unlock >= chip_size) {
+		lock_value = 0;
+	}
+	else {
+		/* Calculate the "aligned_mask"
+		 * On chips with more than 3 locks bits, bits are not aligned
+		 * As such, lock bits as they were continous
+		 * Then use that to determine the actual lock_value */
+		lock_continuous = 1;
+		pow = 1;
+		while ( (pow*flash->sector_size) < size_to_unlock ) {
+			lock_continuous = lock_continuous + 1;
+			pow = pow << 1;
+
+			/* Check against 4bits value (0xF)
+			 * Chips has 4 bits lock, if higher something is wrong*/
+			if (lock_continuous > 0xF) {
+				debug("SF: Unlock size exceed number of unlock bits!\n");
+				return -EINVAL;
+			}
+		}
+
+		/* Here we convert "continuous" lock bits to actual lock value
+		 * SR_BP0, SR_BP1 and SR_BP2 are contiguous, SR_BP3 is not */
+		if (lock_continuous > 0x7) {
+			lock_value = SR_BP3 + ((lock_continuous & 0x7) << SR_BP0);
+		}
+		else {
+			lock_value = (lock_continuous << SR_BP0);
+		}
+	}
+	status_new = (status_old & ~lock_mask) | lock_value;
 
 	/* Only modify protection if it will not lock other areas */
-	if ((status_new & mask) >= (status_old & mask))
+	if ((status_new & lock_mask) >= (status_old & lock_mask)) {
 		return -EINVAL;
+	}
 
 	write_sr(flash, status_new);
 

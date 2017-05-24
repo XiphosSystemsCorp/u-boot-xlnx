@@ -117,6 +117,7 @@ enum spi_nor_option_flags {
 #define SR_BP0				BIT(2)  /* Block protect 0 */
 #define SR_BP1				BIT(3)  /* Block protect 1 */
 #define SR_BP2				BIT(4)  /* Block protect 2 */
+#define SR_BP3				BIT(6)  /* Block protect 3 */
 
 /* Flash timeout values */
 #define SPI_FLASH_PROG_TIMEOUT		(2 * CONFIG_SYS_HZ)
