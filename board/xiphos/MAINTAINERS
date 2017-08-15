@@ -1,0 +1,6 @@
+XIPHOS BOARDS
+M:	Liam Beguin <lvb@xiphos.com>
+S:	Maintained
+F:	board/xiphos/
+F:	include/configs/xiphos*.h
+F:	configs/xiphos_*_defconfig
