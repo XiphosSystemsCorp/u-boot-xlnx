@@ -25,6 +25,10 @@ int board_init(void)
 int board_late_init(void)
 {
 
+#ifdef CONFIG_XIPHOS_SPACE
+	setenv("xsc_space", "enable");
+#endif
+
 	return 0;
 }
 
