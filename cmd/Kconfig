@@ -808,6 +808,12 @@ config CMD_MMC_SPI
 	  to 20MHz. It is useful since it reduces the amount of protocol code
 	  required.
 
+config CMD_PA3
+	bool "pa3"
+	default n
+	help
+	  ProAsic support
+
 config CMD_ONENAND
 	bool "onenand - access to onenand device"
 	help
