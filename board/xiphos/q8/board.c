@@ -168,6 +168,23 @@ static const struct {
 };
 #endif
 
+#ifdef CONFIG_CMD_PA3
+int board_pa3_config(void)
+{
+	puts("FAKE config done\n");
+	return 0;
+}
+
+int board_pa3_status(uint8_t *chip, uint8_t *segment, uint8_t *retry)
+{
+	*chip = 0;
+	*segment = 0;
+	*retry = 0;
+
+	return 0;
+}
+#endif /* CONFIG_CMD_PA3 */
+
 int chip_id(unsigned char id)
 {
 	struct pt_regs regs;
@@ -290,6 +307,10 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+#ifdef CONFIG_CMD_PA3
+	uint8_t chip, segment, retry;
+#endif /* CONFIG_CMD_PA3 */
+
 	printf("EL Level:\tEL%d\n", current_el());
 
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
@@ -303,6 +324,10 @@ int board_init(void)
 	}
 #endif
 
+#ifdef CONFIG_CMD_PA3
+	board_pa3_config();
+	board_pa3_status(&chip, &segment, &retry);
+#endif /* CONFIG_CMD_PA3 */
 	return 0;
 }
 

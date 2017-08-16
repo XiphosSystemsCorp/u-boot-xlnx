@@ -15,10 +15,8 @@
 #undef CONFIG_ENV_OFFSET_REDUND
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"send_one_config_done=mw 0xe000a204 0xe00; mw 0xe000a208 0xe00; mw 0xe000a000 0xfdff0000; mw 0xe000a000 0xfdff0200\0" \
-	"preboot=run config_done; echo 'preboot done'\0" \
 	"bootcmd=echo; echo ' ** U-BOOT ENVIRONMENT NOT LOADED FROM FLASH **'; echo\0" \
-	"config_done=echo 'Sending config_done signal' ; run send_one_config_done ; run send_one_config_done\0" \
+	"config_done=pa3 config\0" \
 	"legacy_load_dtb=sf read 500000 520000 20000\0" \
 	"legacy_load_kernel=sf read 100000 540000 370000\0" \
 	"legacy_load_initramfs=sf read 1000000 9c0000 300000\0" \

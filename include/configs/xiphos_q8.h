@@ -29,6 +29,7 @@
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
+	"config_done=pa3 config\0" \
 	"bootcmd=echo; echo ' ** WARNING: USING DEFAULT U-BOOT ENVIRONMENT **'; echo\0"
 
 #endif /* __CONFIG_XIPHOS_Q8_H */
