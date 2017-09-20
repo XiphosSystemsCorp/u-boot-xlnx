@@ -21,6 +21,7 @@
 	"legacy_load_kernel=sf read 100000 540000 370000\0" \
 	"legacy_load_initramfs=sf read 1000000 9c0000 300000\0" \
 	"xsc_legacy=sf probe 0; run legacy_load_dtb; run legacy_load_kernel; run legacy_load_initramfs\0" \
+	"xboot=run xsc_legacy; setenv bootargs 'earlyprintk console=ttyPS0,115200 noinitrd rootwait=1 rw ubi.mtd=11 rootfstype=ubifs root=ubi0:rootfs init=/sbin/init'; bootm 0x100000 - 0x500040;\0" \
 	"single=setenv bootargs console=ttyPS0,115200 single; bootm 0x100000 0x1000000 0x500040\0"
 
 #endif /* __CONFIG_XIPHOS_Q7_H */
