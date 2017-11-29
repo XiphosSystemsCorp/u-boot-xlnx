@@ -829,6 +829,13 @@ config CMD_PART
 	  Read and display information about the partition table on
 	  various media.
 
+config CMD_XSCINFO
+	bool "xscinfo"
+	depends on DM_SPI_FLASH
+	default n
+	help
+	  Xiphos interface for persistent memory.
+
 config CMD_PCI
 	bool "pci - Access PCI devices"
 	help

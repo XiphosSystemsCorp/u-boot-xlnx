@@ -138,6 +138,7 @@ obj-$(CONFIG_CMD_USB_SDP) += usb_gadget_sdp.o
 obj-$(CONFIG_CMD_THOR_DOWNLOAD) += thordown.o
 obj-$(CONFIG_CMD_XIMG) += ximg.o
 obj-$(CONFIG_CMD_YAFFS2) += yaffs2.o
+obj-$(CONFIG_CMD_XSCINFO) += xscinfo.o
 obj-$(CONFIG_CMD_SPL) += spl.o
 obj-$(CONFIG_CMD_ZIP) += zip.o
 obj-$(CONFIG_CMD_ZFS) += zfs.o
