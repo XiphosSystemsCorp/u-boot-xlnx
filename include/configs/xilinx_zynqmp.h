@@ -83,25 +83,6 @@
 # define CONFIG_MTD_DEVICE
 #endif
 
-#if !defined(CONFIG_SPL_BUILD)
-#define CONFIG_CMD_UBI
-#define CONFIG_RBTREE
-#define CONFIG_CMD_UBIFS
-#define CONFIG_LZO
-
-#define CONFIG_CMD_MTDPARTS
-#define CONFIG_MTD_DEVICE
-#define CONFIG_MTD_PARTITIONS
-
-#define CONFIG_MTD_UBI_WL_THRESHOLD 4096
-#define CONFIG_MTD_UBI_BEB_LIMIT 0
-
-#if defined(CONFIG_ZYNQMP_QSPI)
-/* SPI layer registers with MTD */
-#define CONFIG_SPI_FLASH_MTD
-#endif
-#endif
-
 #if defined(CONFIG_SPL_BUILD)
 #define CONFIG_ZYNQMP_PSU_INIT_ENABLED
 #endif
@@ -369,7 +350,6 @@
 #endif
 
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_DFU_SUPPORT)
-# undef CONFIG_CMD_BOOTD
 # define CONFIG_SPL_ENV_SUPPORT
 # define CONFIG_SPL_HASH_SUPPORT
 # define CONFIG_ENV_MAX_ENTRIES	10
