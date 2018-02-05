@@ -14,6 +14,11 @@
 
 #define CONFIG_MTD_PARTITIONS
 
+/* cleanup include */
+#undef CONFIG_CMD_THOR_DOWNLOAD
+#undef CONFIG_CMD_FASTBOOT
+#undef CONFIG_PREBOOT
+
 /* MTD partition settings */
 #define MTDIDS_DEFAULT		"nor0=flash"
 #define MTDPARTS_DEFAULT	"mtdparts=flash:" \
