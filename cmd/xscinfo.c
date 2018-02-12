@@ -30,6 +30,12 @@
 
 #define EOL '\0'
 
+#ifdef CONFIG_XSCINFO_ENABLE_RO_WRITE
+#define XSCINFO_HTABLE(ro) (ro ? &ro_htab : &rw_htab)
+#else
+#define XSCINFO_HTABLE(ro) (&rw_htab)
+#endif
+
 static struct spi_flash *flash;
 unsigned long base_addr;
 struct hsearch_data ro_htab;
@@ -202,11 +208,23 @@ static int do_xscinfo_get(cmd_tbl_t *cmdtp, int flag, int argc,
 static int do_xscinfo_set(cmd_tbl_t *cmdtp, int flag, int argc,
 			  char * const argv[])
 {
-	int   i, len;
+	int i, len;
+#ifdef CONFIG_XSCINFO_ENABLE_RO_WRITE
+	int ro = 0;
+#endif
 	char  *name, *value, *s;
 	ENTRY e, *ep;
 
 	name = argv[1];
+#ifdef CONFIG_XSCINFO_ENABLE_RO_WRITE
+	if (name[0] == '~') {
+		debug("using RO table\n");
+		ro = 1;
+		name++;
+	} else {
+		debug("using RW table\n");
+	}
+#endif
 
 	if (strchr(name, '=')) {
 		printf("## Error: illegal character '='"
@@ -216,7 +234,7 @@ static int do_xscinfo_set(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	/* Delete only ? */
 	if (argc < 3 || argv[2] == NULL) {
-		int rc = hdelete_r(name, &rw_htab, flag);
+		int rc = hdelete_r(name, XSCINFO_HTABLE(ro), 0);
 		return !rc;
 	}
 
@@ -241,7 +259,7 @@ static int do_xscinfo_set(cmd_tbl_t *cmdtp, int flag, int argc,
 
 	e.key	= name;
 	e.data	= value;
-	hsearch_r(e, ENTER, &ep, &rw_htab, flag);
+	hsearch_r(e, ENTER, &ep, XSCINFO_HTABLE(ro), 0);
 	free(value);
 	if (!ep) {
 		printf("## Failed to set \"%s\" variable\n", name);
@@ -307,6 +325,10 @@ static int do_xscinfo_save(cmd_tbl_t *cmdtp, int flag, int argc,
 			   char * const argv[])
 {
 
+#ifdef CONFIG_XSCINFO_ENABLE_RO_WRITE
+	if (xscinfo_save_table(&ro_htab, base_addr))
+		return CMD_RET_FAILURE;
+#endif
 	if (xscinfo_save_table(&rw_htab, base_addr + flash->erase_size))
 		return CMD_RET_FAILURE;
 

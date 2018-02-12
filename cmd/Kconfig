@@ -836,6 +836,17 @@ config CMD_XSCINFO
 	help
 	  Xiphos interface for persistent memory.
 
+if CMD_XSCINFO
+config XSCINFO_ENABLE_RO_WRITE
+	bool "Enable write access to RO partition"
+	default n
+	help
+	  Xiphos' persistent memory interface has 2 partitions rw and ro.
+	  When enabled, This allows the user to write to the ro partition.
+	  To specify that we are writing to the ro partition add a ~ before
+	  the variable name.
+endif
+
 config CMD_PCI
 	bool "pci - Access PCI devices"
 	help
