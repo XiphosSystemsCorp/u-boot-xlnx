@@ -12,6 +12,8 @@
 
 #include <configs/zynq-common.h>
 
+#define CONFIG_MTD_PARTITIONS
+
 #undef CONFIG_ENV_OFFSET_REDUND
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
