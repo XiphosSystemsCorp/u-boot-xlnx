@@ -30,7 +30,7 @@ CONFIG_CMD_EXT4_WRITE=y
 CONFIG_CMD_FAT=y
 CONFIG_CMD_FS_GENERIC=y
 CONFIG_MTDIDS_DEFAULT="nor0=flash"
-CONFIG_MTDPARTS_DEFAULT="mtdparts=flash:128k(qspi0-nom-xscinfo),10m(qspi0-nom-fw),54m(qspi0-nom-rootfs),128k(qspi0-gold-xscinfo),10m(qspi0-gold-fw),-(qspi0-gold-rootfs)"
+CONFIG_MTDPARTS_DEFAULT="mtdparts=flash:128k(nom0-xscinfo),5m(nom0-fw),128k(nom0-devicetree),5m(nom0-kernel),53m(nom0-rootfs),128k(gold0-xscinfo),5m(gold0-fw),128k(gold0-devicetree),5m(gold0-kernel),53m(gold0-rootfs),128k(nom1-xscinfo),5m(nom1-fw),128k(nom1-devicetree),5m(nom1-kernel),53m(nom1-rootfs),128k(gold1-xscinfo),5m(gold1-fw),128k(gold1-devicetree),5m(gold1-kernel),53m(gold1-rootfs)"
 CONFIG_CMD_UBI=y
 CONFIG_OF_EMBED=y
 CONFIG_NET_RANDOM_ETHADDR=y

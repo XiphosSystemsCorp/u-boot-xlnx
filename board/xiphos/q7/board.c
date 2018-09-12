@@ -16,9 +16,20 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 
+#include <xiphos/xscinfo.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_CMD_PA3
+#if !defined(CONFIG_CMD_PA3)
+#error "Xiphos boards require CONFIG_CMD_PA3!"
+#endif
+#if !defined(CONFIG_CMD_XSCINFO)
+#error "Xiphos boards require CONFIG_CMD_XSCINFO!"
+#endif
+#if !defined(CONFIG_CMD_UBIFS)
+#error "Xiphos boards require CONFIG_CMD_UBIFS!"
+#endif
+
 int board_pa3_config(void)
 {
 	/* set "direction" of the config done register to "output" */
@@ -43,22 +54,27 @@ int board_pa3_status(uint8_t *chip, uint8_t *segment, uint8_t *retry)
 
 	return 0;
 }
-#endif /* CONFIG_CMD_PA3 */
 
 int board_init(void)
 {
-#ifdef CONFIG_CMD_PA3
-	board_pa3_config();
-#endif /* CONFIG_CMD_PA3 */
 	return 0;
 }
 
 int board_late_init(void)
 {
+	uint8_t chip = 0, segment = 0, retry = 0;
+	char copyid[6];
 
-#ifdef CONFIG_XIPHOS_SPACE
-	setenv("xsc_space", "enable");
-#endif
+	/* PA3 get current copy */
+	board_pa3_config();
+	board_pa3_status(&chip, &segment, &retry);
+
+	sprintf(copyid, "%s%d", segment ? "gold" : "nom", chip);
+	printf("\nXSC Copy ID: %s\n", copyid);
+
+
+	/* Enable env commands to read copyid */
+	env_set("copyid", copyid);
 
 	return 0;
 }

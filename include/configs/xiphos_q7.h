@@ -19,11 +19,20 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootcmd=echo; echo ' ** U-BOOT ENVIRONMENT NOT LOADED FROM FLASH **'; echo\0" \
 	"config_done=pa3 config\0" \
-	"legacy_load_dtb=sf read 500000 520000 20000\0" \
-	"legacy_load_kernel=sf read 100000 540000 370000\0" \
-	"legacy_load_initramfs=sf read 1000000 9c0000 300000\0" \
-	"xsc_legacy=sf probe 0; run legacy_load_dtb; run legacy_load_kernel; run legacy_load_initramfs\0" \
-	"xboot=run xsc_legacy; setenv bootargs 'earlyprintk console=ttyPS0,115200 noinitrd rootwait=1 rw ubi.mtd=11 rootfstype=ubifs root=ubi0:rootfs init=/sbin/init'; bootm 0x100000 - 0x500040;\0" \
-	"single=setenv bootargs console=ttyPS0,115200 single; bootm 0x100000 0x1000000 0x500040\0"
+	"rootfs_mtd=11\0" \
+	"bootargs=earlyprintk console=ttyPS0,115200 noinitrd init=/sbin/init\0" \
+	\
+	"load_flash=" \
+		"sf probe;" \
+		"sf read 500000 ${copyid}-devicetree 20000;" \
+		"sf read 100000 ${copyid}-kernel 370000;" \
+		"\0" \
+	\
+	"boot_ubi=" \
+		"setenv bootargs ${bootargs} rootwait=1 rw rootfstype=ubifs ubi.mtd=${rootfs_mtd} root=ubi0:rootfs;" \
+		"bootm 100000 - 500040;" \
+		"\0" \
+	\
+	"single=setenv bootargs console=ttyPS0,115200 single; bootm 100000 1000000 500040\0"
 
 #endif /* __CONFIG_XIPHOS_Q7_H */
