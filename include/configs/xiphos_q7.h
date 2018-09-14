@@ -19,6 +19,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootcmd=echo; echo ' ** U-BOOT ENVIRONMENT NOT LOADED FROM FLASH **'; echo\0" \
 	"config_done=pa3 config\0" \
+	"tftpserver=192.168.200.111\0" \
 	"bootargs=earlyprintk console=ttyPS0,115200 noinitrd init=/sbin/init\0" \
 	\
 	"nom0-rootfs-id=" CONFIG_XSC_ROOTFS_NOM0_ID "\0" \
@@ -32,6 +33,12 @@
 		"elif test $copyid = \"gold1\"; then setenv rootfs_mtd " CONFIG_XSC_ROOTFS_GOLD1_ID ";" \
 		"fi;\0" \
 	\
+	"load_net=" \
+		"setenv autoload no;" \
+		"dhcp;" \
+		"tftpboot 500000 ${tftpserver}:dtb-xiphos.img;" \
+		"tftpboot 100000 ${tftpserver}:uImage;" \
+		"\0" \
 	"load_flash=" \
 		"sf probe;" \
 		"sf read 500000 ${copyid}-devicetree 20000;" \
