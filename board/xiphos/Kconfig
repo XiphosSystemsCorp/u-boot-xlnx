@@ -1,0 +1,13 @@
+# Copyright (c) 2018, Xiphos System Corp.
+#
+# SPDX-License-Identifier: GPL-2.0
+
+if SYS_VENDOR = "xiphos"
+config XIPHOS_DEFAULTS
+	bool "Xiphos default configurations"
+	default y
+	select CMD_XSCINFO
+	select CMD_PA3
+	select CMD_UBI
+	select CMD_UBIFS
+endif
