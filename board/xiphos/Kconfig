@@ -11,3 +11,21 @@ config XIPHOS_DEFAULTS
 	select CMD_UBI
 	select CMD_UBIFS
 endif
+
+if SYS_BOARD = "q7"
+config XSC_ROOTFS_NOM0_ID
+	string "Partition ID for nominal 0 rootfs"
+	default 11
+
+config XSC_ROOTFS_GOLD0_ID
+	string "Partition ID for gold 0 rootfs"
+	default 21
+
+config XSC_ROOTFS_NOM1_ID
+	string "Partition ID for nominal 1 rootfs"
+	default 32
+
+config XSC_ROOTFS_GOLD1_ID
+	string "Partition ID for gold 1 rootfs"
+	default 42
+endif
