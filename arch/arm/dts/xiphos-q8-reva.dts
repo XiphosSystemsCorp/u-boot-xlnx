@@ -46,6 +46,7 @@
 	status = "okay";
 	is-dual = <0>;
 	is-stacked = <1>;
+	has-io-mode = <1>;
 	spi-rx-bus-width = <2>;
 	/delete-node/ flash@0;
 	flash: flash@1 {
