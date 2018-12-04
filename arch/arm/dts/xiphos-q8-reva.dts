@@ -17,8 +17,8 @@
 #include <dt-bindings/phy/phy.h>
 
 / {
-	model = "ZynqMP ZCU102 RevA";
-	compatible = "xlnx,zynqmp-zcu102-revA", "xlnx,zynqmp-zcu102", "xlnx,zynqmp";
+	model = "Xiphos Q8 RevA";
+	compatible = "xiphos,q8", "xlnx,zynqmp-zcu102", "xlnx,zynqmp";
 
 	aliases {
 		ethernet0 = &gem3;
