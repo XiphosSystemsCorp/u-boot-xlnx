@@ -113,12 +113,12 @@
 
 &gem3 {
 	status = "okay";
-	phy-handle = <&phy0>;
+	phy-handle = <&phyc>;
 	phy-mode = "rgmii-id";
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_gem3_default>;
-	phy0: phy@21 {
-		reg = <21>;
+	phyc: phy@c {
+		reg = <0xc>;
 		ti,rx-internal-delay = <0x8>;
 		ti,tx-internal-delay = <0xa>;
 		ti,fifo-depth = <0x1>;
