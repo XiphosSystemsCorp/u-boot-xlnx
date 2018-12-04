@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * dts file for Xilinx ZynqMP ZCU102 RevA
+ * dts file for Xiphos Q8 RevA
  *
  * (C) Copyright 2015 - 2018, Xilinx, Inc.
+ * (C) Copyright 2017 - 2018, Xiphos System Corp.
  *
  * Michal Simek <michal.simek@xilinx.com>
  */
