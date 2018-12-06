@@ -36,6 +36,14 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"config_done=pa3 config\0" \
 	"autoload=no\0" \
+	"tftpserver=192.168.200.111\0" \
+	"boot_dhcp= " \
+		"dhcp; " \
+		"tftpboot 0x00100000 ${tftpserver}:q8/q8-test.dtb; " \
+		"tftpboot 0x00500000 ${tftpserver}:q8/Image; " \
+		"tftpboot 0x02000000 ${tftpserver}:q8/xsc-image-initramfs-q8-reva.cpio.gz.u-boot; " \
+		"setenv bootargs console=ttyPS0,115200 earlycon clk_ignore_unused init=/bin/sh mem=2G;" \
+		"booti 0x00500000 0x02000000 0x00100000\0" \
 	"bootcmd=echo; echo ' ** WARNING: USING DEFAULT U-BOOT ENVIRONMENT **'; echo\0"
 
 #endif /* __CONFIG_XIPHOS_Q8_H */
