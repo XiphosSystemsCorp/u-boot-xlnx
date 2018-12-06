@@ -171,15 +171,23 @@ static const struct {
 #ifdef CONFIG_CMD_PA3
 int board_pa3_config(void)
 {
-	puts("FAKE config done\n");
+	__raw_writel(0x00001000, 0xff0a0204);
+	__raw_writel(0x00001000, 0xff0a0208);
+
+	__raw_writel(0x00001000, 0xff0a0040);
+	__raw_writel(0x00000000, 0xff0a0040);
+
 	return 0;
 }
 
 int board_pa3_status(uint8_t *chip, uint8_t *segment, uint8_t *retry)
 {
-	*chip = 0;
-	*segment = 0;
-	*retry = 0;
+	uint32_t raw_status;
+
+	raw_status = __raw_readl(0xA2100008);
+	*retry   = (raw_status & BIT(4)) >> 4;
+	*chip    = (raw_status & BIT(5)) >> 5;
+	*segment = (raw_status & BIT(6)) >> 6;
 
 	return 0;
 }
