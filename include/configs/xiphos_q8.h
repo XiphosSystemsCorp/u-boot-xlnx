@@ -34,7 +34,7 @@
 
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"config_done=pa3 config\0" \
+	"config_done=echo sending config_done (x3); pa3 config; pa3 config; pa3 config\0" \
 	"autoload=no\0" \
 	"tftpserver=192.168.200.111\0" \
 	"boot_dhcp= " \
