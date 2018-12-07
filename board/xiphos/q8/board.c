@@ -315,9 +315,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_CMD_PA3
-	uint8_t chip, segment, retry;
-#endif /* CONFIG_CMD_PA3 */
+	uint8_t chip = 0, segment = 0, retry = 0;
 
 	printf("EL Level:\tEL%d\n", current_el());
 
@@ -332,10 +330,7 @@ int board_init(void)
 	}
 #endif
 
-#ifdef CONFIG_CMD_PA3
 	board_pa3_config();
-	board_pa3_status(&chip, &segment, &retry);
-#endif /* CONFIG_CMD_PA3 */
 	return 0;
 }
 
