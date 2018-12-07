@@ -40,6 +40,7 @@
 	"bitstream_ram_addr=0x40000000\0" \
 	"kernel_ram_addr=0x00500000\0" \
 	"dtb_ram_addr=0x00100000\0" \
+	"dtb_ram_addr_no_header=0x00100040\0" \
 	"initramfs_ram_addr=0x02000000\0" \
 	\
 	"autoload=no\0" \
@@ -51,6 +52,9 @@
 		"tftpboot ${kernel_ram_addr} ${tftpserver}:q8/Image; " \
 		"tftpboot ${initramfs_ram_addr} ${tftpserver}:q8/xsc-image-initramfs-q8-reva.cpio.gz.u-boot; " \
 		"booti ${kernel_ram_addr} ${initramfs_ram_addr} ${dtb_ram_addr}\0" \
+	"boot_nor= " \
+		"setenv bootargs $bootargs rootwait=1 rw rootfstype=ubifs ubi.mtd=qspi0-nom-rootfs root=ubi0:q8-reva-rootfs;" \
+		"booti ${kernel_ram_addr} - ${dtb_ram_addr_no_header}\0" \
 	"bootcmd=echo; echo ' ** WARNING: USING DEFAULT U-BOOT ENVIRONMENT **'; echo\0"
 
 #endif /* __CONFIG_XIPHOS_Q8_H */
