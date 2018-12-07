@@ -37,7 +37,7 @@
 	"config_done=echo sending config_done (x3); pa3 config; pa3 config; pa3 config\0" \
 	"autoload=no\0" \
 	"tftpserver=192.168.200.111\0" \
-	"boot_dhcp= " \
+	"boot_tftp= " \
 		"dhcp; " \
 		"tftpboot 0x00100000 ${tftpserver}:q8/q8-test.dtb; " \
 		"tftpboot 0x00500000 ${tftpserver}:q8/Image; " \
