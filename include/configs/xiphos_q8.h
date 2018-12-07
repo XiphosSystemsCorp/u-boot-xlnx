@@ -35,15 +35,22 @@
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"config_done=echo sending config_done (x3); pa3 config; pa3 config; pa3 config\0" \
+	"bootargs=console=ttyPS0,115200 earlycon clk_ignore_unused\0" \
+	\
+	"bitstream_ram_addr=0x40000000\0" \
+	"kernel_ram_addr=0x00500000\0" \
+	"dtb_ram_addr=0x00100000\0" \
+	"initramfs_ram_addr=0x02000000\0" \
+	\
 	"autoload=no\0" \
 	"tftpserver=192.168.200.111\0" \
+	\
 	"boot_tftp= " \
 		"dhcp; " \
-		"tftpboot 0x00100000 ${tftpserver}:q8/q8-test.dtb; " \
-		"tftpboot 0x00500000 ${tftpserver}:q8/Image; " \
-		"tftpboot 0x02000000 ${tftpserver}:q8/xsc-image-initramfs-q8-reva.cpio.gz.u-boot; " \
-		"setenv bootargs console=ttyPS0,115200 earlycon clk_ignore_unused init=/bin/sh mem=2G;" \
-		"booti 0x00500000 0x02000000 0x00100000\0" \
+		"tftpboot ${dtb_ram_addr} ${tftpserver}:q8/q8-test.dtb; " \
+		"tftpboot ${kernel_ram_addr} ${tftpserver}:q8/Image; " \
+		"tftpboot ${initramfs_ram_addr} ${tftpserver}:q8/xsc-image-initramfs-q8-reva.cpio.gz.u-boot; " \
+		"booti ${kernel_ram_addr} ${initramfs_ram_addr} ${dtb_ram_addr}\0" \
 	"bootcmd=echo; echo ' ** WARNING: USING DEFAULT U-BOOT ENVIRONMENT **'; echo\0"
 
 #endif /* __CONFIG_XIPHOS_Q8_H */
