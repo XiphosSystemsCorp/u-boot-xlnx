@@ -22,12 +22,18 @@
 /* MTD partition settings */
 #define MTDIDS_DEFAULT		"nor0=flash"
 #define MTDPARTS_DEFAULT	"mtdparts=flash:" \
-				"128k(qspi0-nom-xscinfo)," \
-				"10m(qspi0-nom-fw)," \
-				"54m(qspi0-nom-rootfs)," \
-				"128k(qspi0-gold-xscinfo)," \
-				"10m(qspi0-gold-fw)," \
-				"-(qspi0-gold-rootfs)"
+				"0x00A00000(qspi0-nom-fw)," \
+				"0x00020000(qspi0-nom-xscinfo)," \
+				"0x035e0000(qspi0-nom-rootfs)," \
+				"0x00A00000(qspi0-gold-fw)," \
+				"0x00020000(qspi0-gold-xscinfo)," \
+				"0x035e0000(qspi0-gold-rootfs)," \
+				"0x00A00000(qspi1-nom-fw)," \
+				"0x00020000(qspi1-nom-xscinfo)," \
+				"0x035e0000(qspi1-nom-rootfs)," \
+				"0x00A00000(qspi1-gold-fw)," \
+				"0x00020000(qspi1-gold-xscinfo)," \
+				"0x035e0000(qspi1-gold-rootfs)"
 
 /* U-Boot env settings: ENV_IS_IN_UBIFS not yet supported */
 #undef CONFIG_ENV_IS_IN_FAT
