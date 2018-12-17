@@ -53,10 +53,12 @@
 	"tftpserver=192.168.200.111\0" \
 	\
 	"boot_tftp= " \
-		"dhcp; " \
-		"tftpboot ${dtb_ram_addr} ${tftpserver}:q8/q8-test.dtb; " \
-		"tftpboot ${kernel_ram_addr} ${tftpserver}:q8/Image; " \
-		"tftpboot ${initramfs_ram_addr} ${tftpserver}:q8/xsc-image-initramfs-q8-reva.cpio.gz.u-boot; " \
+		"dhcp && " \
+		"tftpboot ${dtb_ram_addr} ${tftpserver}:q8/q8-test.dtb && " \
+		"tftpboot ${kernel_ram_addr} ${tftpserver}:q8/Image && " \
+		"tftpboot ${initramfs_ram_addr} ${tftpserver}:q8/xsc-image-initramfs-q8-reva.cpio.gz.u-boot && " \
+		"tftpboot ${bitstream_ram_addr} ${tftpserver}:q8/design_1_wrapper.bit && " \
+		"fpga loadb 0 ${bitstream_ram_addr} $filesize && " \
 		"booti ${kernel_ram_addr} ${initramfs_ram_addr} ${dtb_ram_addr}\0" \
 	"boot_nor= " \
 		"setenv bootargs $bootargs rootwait=1 rw rootfstype=ubifs ubi.mtd=qspi0-nom-rootfs root=ubi0:q8-reva-rootfs;" \
