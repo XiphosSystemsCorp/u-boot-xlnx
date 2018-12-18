@@ -26,7 +26,8 @@
 		gpio0 = &gpio;
 		i2c0 = &i2c0;
 		i2c1 = &i2c1;
-		mmc0 = &sdhci1;
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
 		rtc0 = &rtc;
 		serial0 = &uart0;
 		serial1 = &uart1;
@@ -437,13 +438,12 @@
 	status = "okay";
 };
 
-/* SD1 with level shifter */
+&sdhci0 {
+	status = "okay";
+};
+
 &sdhci1 {
 	status = "okay";
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_sdhci1_default>;
-	no-1-8-v;
-	xlnx,mio_bank = <1>;
 };
 
 &serdes {

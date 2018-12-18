@@ -5,4 +5,4 @@
 #
 
 obj-y	:= board.o
-obj-$(CONFIG_ZYNQ_SDHCI) += tap_delays.o
+obj-$(CONFIG_MMC_SDHCI_ZYNQ) += tap_delays.o
