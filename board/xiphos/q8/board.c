@@ -310,6 +310,19 @@ int board_early_init_f(void)
 	ret = psu_init();
 #endif
 
+	debug("## TOGGLE ETH PHY RESET ##\n");
+	__raw_writel(__raw_readl(0xff0a0244) | BIT(18), 0xff0a0244);
+	__raw_writel(__raw_readl(0xff0a0248) | BIT(18), 0xff0a0248);
+	__raw_writel(__raw_readl(0xff0a0044) & ~BIT(18), 0xff0a0044);
+	__raw_writel(__raw_readl(0xff0a0044) | BIT(18), 0xff0a0044);
+
+	debug("## TOGGLE USB PHY RESET ##\n");
+	__raw_writel(__raw_readl(0xff0a0244) | BIT(19), 0xff0a0244);
+	__raw_writel(__raw_readl(0xff0a0248) | BIT(19), 0xff0a0248);
+	__raw_writel(__raw_readl(0xff0a0044) & ~BIT(19), 0xff0a0044);
+	__raw_writel(__raw_readl(0xff0a0044) | BIT(19), 0xff0a0044);
+	udelay(1000);
+
 	return ret;
 }
 
