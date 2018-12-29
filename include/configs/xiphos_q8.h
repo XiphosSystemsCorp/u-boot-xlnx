@@ -19,6 +19,8 @@
 #undef CONFIG_CMD_FASTBOOT
 #undef CONFIG_PREBOOT
 
+#define CONFIG_PREBOOT "run config_done"
+
 /* MTD partition settings */
 #define MTDIDS_DEFAULT		"nor0=flash"
 #define MTDPARTS_DEFAULT	"mtdparts=flash:" \

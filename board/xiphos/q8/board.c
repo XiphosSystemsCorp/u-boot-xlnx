@@ -310,6 +310,8 @@ int board_early_init_f(void)
 	ret = psu_init();
 #endif
 
+	board_pa3_config();
+
 	debug("## TOGGLE ETH PHY RESET ##\n");
 	__raw_writel(__raw_readl(0xff0a0244) | BIT(18), 0xff0a0244);
 	__raw_writel(__raw_readl(0xff0a0248) | BIT(18), 0xff0a0248);
