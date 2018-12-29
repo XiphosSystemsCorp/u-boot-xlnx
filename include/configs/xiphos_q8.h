@@ -55,6 +55,16 @@
 	"boot_nor= " \
 		"setenv bootargs $bootargs rootwait=1 rw rootfstype=ubifs ubi.mtd=qspi0-nom-rootfs root=ubi0:q8-reva-rootfs;" \
 		"booti ${kernel_ram_addr} - ${dtb_ram_addr_no_header}\0" \
+	"load_nor= " \
+		"sf probe 0 && " \
+		"mtdparts && " \
+		"ubi part qspi0-nom-rootfs && " \
+		"ubifsmount ubi0:q8-reva-rootfs && " \
+		"ubifsload ${bitstream_ram_addr}  /boot/system.bit && " \
+		"fpga loadb 0 ${bitstream_ram_addr} ${filesize} && " \
+		"ubifsload ${kernel_ram_addr}  /boot/Image && " \
+		"ubifsload ${dtb_ram_addr}  /boot/devicetree.img\0" \
+	\
 	"bootcmd=echo; echo ' ** WARNING: USING DEFAULT U-BOOT ENVIRONMENT **'; echo\0"
 
 #endif /* __CONFIG_XIPHOS_Q8_H */

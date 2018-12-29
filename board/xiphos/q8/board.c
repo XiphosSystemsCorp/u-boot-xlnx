@@ -24,9 +24,6 @@
 #include <i2c.h>
 #include <g_dnl.h>
 
-#include <ubi_uboot.h>
-#include <ubifs_uboot.h>
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
@@ -318,11 +315,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	int ret = 0;
 	uint8_t chip = 0, segment = 0, retry = 0;
-	size_t data_size = 0;
-	u32 data_addr = 0;
-	char mtdpart_name[20];
 
 	printf("EL Level:\tEL%d\n", current_el());
 
@@ -338,53 +331,6 @@ int board_init(void)
 #endif
 
 	board_pa3_config();
-
-	sprintf(mtdpart_name, "qspi%d-%s-rootfs", chip,
-			segment ? "gold" : "nom");
-
-	if (ubi_part(mtdpart_name, NULL)) {
-		puts("## Error: Failed to find mtd partition\n");
-		return 1;
-	}
-
-	if (ubifs_init()) {
-		puts("## Error: Failed to initialise UBIFS\n");
-		return 1;
-	}
-
-	if (uboot_ubifs_mount("ubi0:q8-reva-rootfs")) {
-		puts("## Error: Failed to mount UBIFS volume\n");
-		return 1;
-	}
-
-	data_addr = env_get_hex("bitstream_ram_addr", 0);
-	ret = ubifs_load("/boot/system.bit", data_addr, 0);
-	if (ret) {
-		puts("## Unable to load bitstream from UBIFS\n");
-		return 1;
-	}
-
-	data_size = env_get_hex("filesize", 0);
-	ret = fpga_loadbitstream(0, (void *)data_addr, data_size, BIT_FULL);
-	if (ret) {
-		puts("## Unable to load bitstream to FPGA\n");
-		return 1;
-	}
-
-	data_addr = env_get_hex("kernel_ram_addr", 0);
-	ret = ubifs_load("/boot/Image", data_addr, 0);
-	if (ret) {
-		puts("## Unable to load kernel from UBIFS\n");
-		return 1;
-	}
-
-	data_addr = env_get_hex("dtb_ram_addr", 0);
-	ret = ubifs_load("/boot/devicetree.img", data_addr, 0);
-	if (ret) {
-		puts("## Unable to load devicetree blob from UBIFS\n");
-		return 1;
-	}
-
 	return 0;
 }
 
