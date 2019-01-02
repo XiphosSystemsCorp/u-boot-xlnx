@@ -73,6 +73,6 @@
 		"ubifsload ${kernel_ram_addr}  /boot/Image && " \
 		"ubifsload ${dtb_ram_addr}  /boot/devicetree.img\0" \
 	\
-	"bootcmd=echo; echo ' ** WARNING: USING DEFAULT U-BOOT ENVIRONMENT **'; echo\0"
+	"bootcmd=run load_nor && run boot_nor\0"
 
 #endif /* __CONFIG_XIPHOS_Q8_H */
