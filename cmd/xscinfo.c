@@ -312,7 +312,7 @@ static int xscinfo_save_table(struct hsearch_data *table,
 		return 1;
 	}
 
-	debug("write at: 0x%lX len: 0x%X\n", offset, len);
+	debug("write at: 0x%lX len: 0x%lX\n", offset, len);
 	if (spi_flash_write(flash, offset, len, res)) {
 		puts("## Error: unable to write to flash\n");
 		return 1;
