@@ -302,6 +302,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 int board_early_init_f(void)
 {
 	int ret = 0;
+
 #if !defined(CONFIG_SPL_BUILD) && defined(CONFIG_CLK_ZYNQMP)
 	zynqmp_pmufw_version();
 #endif
@@ -309,8 +310,6 @@ int board_early_init_f(void)
 #if defined(CONFIG_ZYNQMP_PSU_INIT_ENABLED)
 	ret = psu_init();
 #endif
-
-	board_pa3_config();
 
 	debug("## TOGGLE ETH PHY RESET ##\n");
 	__raw_writel(__raw_readl(0xff0a0244) | BIT(18), 0xff0a0244);
@@ -330,8 +329,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	uint8_t chip = 0, segment = 0, retry = 0;
-
 	printf("EL Level:\tEL%d\n", current_el());
 
 #if defined(CONFIG_FPGA) && defined(CONFIG_FPGA_ZYNQMPPL) && \
@@ -345,7 +342,6 @@ int board_init(void)
 	}
 #endif
 
-	board_pa3_config();
 	return 0;
 }
 
@@ -455,6 +451,21 @@ void reset_cpu(ulong addr)
 
 int board_late_init(void)
 {
+	uint8_t chip = 0, segment = 0;
+	char prefix[20];
+
+	/* read copy id: MIO38 */
+	segment = (__raw_readl(0xff0a0064) & BIT(12)) >> 12;
+	board_pa3_config();
+	/* read chip id: MIO38 */
+	chip = (__raw_readl(0xff0a0064) & BIT(12)) >> 12;
+	board_pa3_config();
+
+	sprintf(prefix, "qspi%d-%s", chip, segment ? "gold" : "nom");
+
+	printf("Copy:  %s%d\n", segment ? "gold" : "nom", chip);
+	env_set("xsc_prefix", prefix);
+
 	return 0;
 }
 

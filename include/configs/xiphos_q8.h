@@ -19,8 +19,6 @@
 #undef CONFIG_CMD_FASTBOOT
 #undef CONFIG_PREBOOT
 
-#define CONFIG_PREBOOT "run config_done"
-
 /* MTD partition settings */
 #define MTDIDS_DEFAULT		"nor0=flash"
 #define MTDPARTS_DEFAULT	"mtdparts=flash:" \
@@ -68,7 +66,7 @@
 	"load_nor= " \
 		"sf probe 0 && " \
 		"mtdparts && " \
-		"ubi part qspi0-nom-rootfs && " \
+		"ubi part ${xsc_prefix}-rootfs && " \
 		"ubifsmount ubi0:q8-reva-rootfs && " \
 		"ubifsload ${bitstream_ram_addr}  /boot/system.bit && " \
 		"fpga loadb 0 ${bitstream_ram_addr} ${filesize} && " \
