@@ -171,11 +171,11 @@ static const struct {
 #ifdef CONFIG_CMD_PA3
 int board_pa3_config(void)
 {
-	__raw_writel(0x00001000, 0xff0a0204);
-	__raw_writel(0x00001000, 0xff0a0208);
+	__raw_writel(__raw_readl(0xff0a0204) | BIT(12), 0xff0a0204);
+	__raw_writel(__raw_readl(0xff0a0208) | BIT(12), 0xff0a0208);
 
-	__raw_writel(0x00000000, 0xff0a0040);
-	__raw_writel(0x00001000, 0xff0a0040);
+	__raw_writel(__raw_readl(0xff0a0040) & ~BIT(12), 0xff0a0040);
+	__raw_writel(__raw_readl(0xff0a0040) | BIT(12), 0xff0a0040);
 
 	return 0;
 }
