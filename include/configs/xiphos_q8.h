@@ -53,6 +53,9 @@
 	"tftpserver=192.168.200.111\0" \
 	"tftpprefix=q8\0" \
 	\
+	"debug= " \
+		"setenv tftpprefix debug\0" \
+	\
 	"load_tftp= " \
 		"dhcp && " \
 		"tftpboot ${dtb_ram_addr} ${tftpserver}:${tftpprefix}/devicetree.img && " \
