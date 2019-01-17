@@ -71,7 +71,8 @@
 		"ubifsload ${bitstream_ram_addr}  /boot/system.bit && " \
 		"fpga loadb 0 ${bitstream_ram_addr} ${filesize} && " \
 		"ubifsload ${kernel_ram_addr}  /boot/Image && " \
-		"ubifsload ${dtb_ram_addr}  /boot/devicetree.img\0" \
+		"ubifsload ${dtb_ram_addr}  /boot/devicetree.img && " \
+		"ubi detach\0" \
 	\
 	"bootcmd=run load_nor && run boot_nor\0"
 
