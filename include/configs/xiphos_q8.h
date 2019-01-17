@@ -51,18 +51,15 @@
 	\
 	"autoload=no\0" \
 	"tftpserver=192.168.200.111\0" \
+	"tftpprefix=q8\0" \
 	\
-	"boot_tftp= " \
+	"load_tftp= " \
 		"dhcp && " \
-		"tftpboot ${dtb_ram_addr} ${tftpserver}:q8/q8-test.dtb && " \
-		"tftpboot ${kernel_ram_addr} ${tftpserver}:q8/Image && " \
-		"tftpboot ${initramfs_ram_addr} ${tftpserver}:q8/xsc-image-initramfs-q8-reva.cpio.gz.u-boot && " \
-		"tftpboot ${bitstream_ram_addr} ${tftpserver}:q8/design_1_wrapper.bit && " \
-		"fpga loadb 0 ${bitstream_ram_addr} $filesize && " \
-		"booti ${kernel_ram_addr} ${initramfs_ram_addr} ${dtb_ram_addr}\0" \
-	"boot_nor= " \
-		"setenv bootargs $bootargs rootwait=1 rw rootfstype=ubifs ubi.mtd=qspi0-nom-rootfs root=ubi0:q8-reva-rootfs;" \
-		"booti ${kernel_ram_addr} - ${dtb_ram_addr_no_header}\0" \
+		"tftpboot ${dtb_ram_addr} ${tftpserver}:${tftpprefix}/devicetree.img && " \
+		"tftpboot ${kernel_ram_addr} ${tftpserver}:${tftpprefix}/Image && " \
+		"tftpboot ${initramfs_ram_addr} ${tftpserver}:${tftpprefix}/xsc-image-initramfs-q8-reva.cpio.gz.u-boot && " \
+		"tftpboot ${bitstream_ram_addr} ${tftpserver}:${tftpprefix}/system.bit && " \
+		"fpga loadb 0 ${bitstream_ram_addr} $filesize\0" \
 	"load_nor= " \
 		"sf probe 0 && " \
 		"mtdparts && " \
@@ -73,6 +70,11 @@
 		"ubifsload ${kernel_ram_addr}  /boot/Image && " \
 		"ubifsload ${dtb_ram_addr}  /boot/devicetree.img && " \
 		"ubi detach\0" \
+	"boot_initramfs= "\
+		"booti ${kernel_ram_addr} ${initramfs_ram_addr} ${dtb_ram_addr_no_header}\0" \
+	"boot_nor= " \
+		"setenv bootargs $bootargs rootwait=1 rw rootfstype=ubifs ubi.mtd=qspi0-nom-rootfs root=ubi0:q8-reva-rootfs;" \
+		"booti ${kernel_ram_addr} - ${dtb_ram_addr_no_header}\0" \
 	\
 	"bootcmd=run load_nor && run boot_nor\0"
 
