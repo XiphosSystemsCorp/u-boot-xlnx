@@ -56,6 +56,10 @@
 	"debug= " \
 		"setenv tftpprefix debug\0" \
 	\
+	"lub= " \
+		"dhcp && "\
+		"tftpboot " __stringify(CONFIG_SYS_TEXT_BASE) " ${tftpserver}:${tftpprefix}/u-boot.bin && " \
+		"go " __stringify(CONFIG_SYS_TEXT_BASE) "\0" \
 	"load_tftp= " \
 		"dhcp && " \
 		"tftpboot ${dtb_ram_addr} ${tftpserver}:${tftpprefix}/devicetree.img && " \
