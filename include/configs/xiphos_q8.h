@@ -17,7 +17,9 @@
 /* cleanup include */
 #undef CONFIG_CMD_THOR_DOWNLOAD
 #undef CONFIG_CMD_FASTBOOT
+
 #undef CONFIG_PREBOOT
+#define CONFIG_PREBOOT "run load_nor && run load_scratch_env"
 
 /* MTD partition settings */
 #define MTDIDS_DEFAULT		"nor0=flash"
@@ -60,6 +62,7 @@
 		"dhcp && "\
 		"tftpboot " __stringify(CONFIG_SYS_TEXT_BASE) " ${tftpserver}:${tftpprefix}/u-boot.bin && " \
 		"go " __stringify(CONFIG_SYS_TEXT_BASE) "\0" \
+	"load_scratch_env=env import -b 0xa2402000 0x100\0" \
 	"load_tftp= " \
 		"dhcp && " \
 		"tftpboot ${dtb_ram_addr} ${tftpserver}:${tftpprefix}/devicetree.img && " \
@@ -83,6 +86,6 @@
 		"setenv bootargs $bootargs serial=${serial} rootwait=1 rw rootfstype=ubifs ubi.mtd=qspi0-nom-rootfs root=ubi0:q8-reva-rootfs;" \
 		"booti ${kernel_ram_addr} - ${dtb_ram_addr_no_header}\0" \
 	\
-	"bootcmd=run load_nor && run boot_nor\0"
+	"bootcmd=run boot_nor\0"
 
 #endif /* __CONFIG_XIPHOS_Q8_H */
