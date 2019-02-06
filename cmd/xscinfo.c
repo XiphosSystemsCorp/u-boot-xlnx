@@ -224,6 +224,12 @@ static int do_xscinfo_set(cmd_tbl_t *cmdtp, int flag, int argc,
 	} else {
 		debug("using RW table\n");
 	}
+#else
+	if (name[0] == '~') {
+		printf("## Error: illegal character '~'"
+		       "in variable name \"%s\"\n", name);
+		return 1;
+	}
 #endif
 
 	if (strchr(name, '=')) {
