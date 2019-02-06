@@ -12,6 +12,8 @@
 #include <sata.h>
 #include <ahci.h>
 #include <scsi.h>
+#include <search.h>
+#include <xiphos/xscinfo.h>
 #include <malloc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hardware.h>
@@ -370,22 +372,6 @@ int board_early_init_r(void)
 	return 0;
 }
 
-int zynq_board_read_rom_ethaddr(unsigned char *ethaddr)
-{
-#if defined(CONFIG_ZYNQ_GEM_EEPROM_ADDR) && \
-    defined(CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET) && \
-    defined(CONFIG_ZYNQ_EEPROM_BUS)
-	i2c_set_bus_num(CONFIG_ZYNQ_EEPROM_BUS);
-
-	if (eeprom_read(CONFIG_ZYNQ_GEM_EEPROM_ADDR,
-			CONFIG_ZYNQ_GEM_I2C_MAC_OFFSET,
-			ethaddr, 6))
-		printf("I2C EEPROM MAC address read failed\n");
-#endif
-
-	return 0;
-}
-
 unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
 			 char * const argv[])
 {
@@ -453,6 +439,8 @@ int board_late_init(void)
 {
 	uint8_t chip = 0, segment = 0;
 	char prefix[20];
+	ENTRY *ep;
+	int is_rw;
 
 	/* read copy id: MIO38 */
 	segment = (__raw_readl(0xff0a0064) & BIT(12)) >> 12;
@@ -465,6 +453,18 @@ int board_late_init(void)
 
 	printf("Copy:  %s%d\n", segment ? "gold" : "nom", chip);
 	env_set("xsc_prefix", prefix);
+
+	xscinfo_addr("0x00a00000");
+
+	if (xscinfo_get("ethaddr", &ep, &is_rw))
+		puts("ethaddr variable not found\n");
+	else
+		env_set(ep->key, ep->data);
+
+	if (xscinfo_get("serial", &ep, &is_rw))
+		puts("serial variable not found\n");
+	else
+		env_set(ep->key, ep->data);
 
 	return 0;
 }
