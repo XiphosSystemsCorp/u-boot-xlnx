@@ -52,7 +52,7 @@
 	"initramfs_ram_addr=0x02000000\0" \
 	\
 	"autoload=no\0" \
-	"tftpserver=192.168.200.111\0" \
+	"tftpserver=192.168.200.113\0" \
 	"tftpprefix=q8\0" \
 	\
 	"debug= " \
