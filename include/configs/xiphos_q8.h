@@ -47,6 +47,7 @@
 	\
 	"bitstream_ram_addr=0x40000000\0" \
 	"kernel_ram_addr=0x00500000\0" \
+	"kernel_gz_ram_addr=0x03000000\0" \
 	"dtb_ram_addr=0x00100000\0" \
 	"dtb_ram_addr_no_header=0x00100040\0" \
 	"initramfs_ram_addr=0x02000000\0" \
@@ -66,7 +67,8 @@
 	"load_tftp= " \
 		"dhcp && " \
 		"tftpboot ${dtb_ram_addr} ${tftpserver}:${tftpprefix}/devicetree.img && " \
-		"tftpboot ${kernel_ram_addr} ${tftpserver}:${tftpprefix}/Image && " \
+		"tftpboot ${kernel_gz_ram_addr} ${tftpserver}:${tftpprefix}/Image.gz && " \
+		"unzip ${kernel_gz_ram_addr} ${kernel_ram_addr} && " \
 		"tftpboot ${initramfs_ram_addr} ${tftpserver}:${tftpprefix}/xsc-image-initramfs-q8-reva.cpio.gz.u-boot && " \
 		"tftpboot ${bitstream_ram_addr} ${tftpserver}:${tftpprefix}/system.bit && " \
 		"fpga loadb 0 ${bitstream_ram_addr} $filesize\0" \
@@ -77,7 +79,8 @@
 		"ubifsmount ubi0:q8-reva-rootfs && " \
 		"ubifsload ${bitstream_ram_addr}  /boot/system.bit && " \
 		"fpga loadb 0 ${bitstream_ram_addr} ${filesize} && " \
-		"ubifsload ${kernel_ram_addr}  /boot/Image && " \
+		"ubifsload ${kernel_gz_ram_addr}  /boot/Image.gz && " \
+		"unzip ${kernel_gz_ram_addr} ${kernel_ram_addr} && " \
 		"ubifsload ${dtb_ram_addr}  /boot/devicetree.img && " \
 		"ubi detach\0" \
 	"boot_initramfs= "\
