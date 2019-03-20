@@ -439,6 +439,7 @@ int board_late_init(void)
 {
 	uint8_t chip = 0, segment = 0;
 	char prefix[20];
+	char partname[20];
 	ENTRY *ep;
 	int is_rw;
 
@@ -454,7 +455,8 @@ int board_late_init(void)
 	printf("Copy:  %s%d\n", segment ? "gold" : "nom", chip);
 	env_set("xsc_prefix", prefix);
 
-	xscinfo_addr("0x00a00000");
+	sprintf(partname, "qspi%d-%s-xscinfo", chip, segment ? "gold" : "nom");
+	xscinfo_addr(partname);
 
 	if (xscinfo_get("ethaddr", &ep, &is_rw))
 		puts("ethaddr variable not found\n");
