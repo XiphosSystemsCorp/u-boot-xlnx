@@ -86,7 +86,7 @@
 	"boot_initramfs= "\
 		"booti ${kernel_ram_addr} ${initramfs_ram_addr} ${dtb_ram_addr_no_header}\0" \
 	"boot_nor= " \
-		"setenv bootargs $bootargs serial=${serial} rootwait=1 rw rootfstype=ubifs ubi.mtd=${xsc_prefix}-rootfs root=ubi0:q8-reva-rootfs;" \
+		"setenv bootargs $bootargs serial=${serial} rootwait=1 ro rootfstype=ubifs ubi.mtd=${xsc_prefix}-rootfs root=ubi0:q8-reva-rootfs;" \
 		"booti ${kernel_ram_addr} - ${dtb_ram_addr_no_header}\0" \
 	\
 	"bootcmd=run boot_nor\0"
