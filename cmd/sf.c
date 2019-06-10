@@ -15,6 +15,7 @@
 #include <spi_flash.h>
 #include <jffs2/jffs2.h>
 #include <linux/mtd/mtd.h>
+#include <u-boot/md5.h>
 
 #include <asm/io.h>
 #include <dm/device-internal.h>
@@ -268,6 +269,11 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 	int dev = 0;
 	loff_t offset, len, maxsize;
 
+	u8 i = 0;
+	u8 output[16];
+	char str_output[33];
+	char *str_ptr = str_output;
+
 	if (argc < 3)
 		return -1;
 
@@ -299,10 +305,28 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 		int read;
 
 		read = strncmp(argv[0], "read", 4) == 0;
-		if (read)
+		if (read) {
 			ret = spi_flash_read(flash, offset, len, buf);
-		else
+
+			/* compute md5sum */
+			md5_wd(buf, len, output, 64);
+
+			/* store it */
+			for (i = 0; i < 16; i++) {
+				sprintf(str_ptr, "%02x", output[i]);
+				str_ptr += 2;
+			}
+			env_set("sf_md5sum", str_output);
+
+			/* print it */
+			printf("md5 for %08llx ... %08llx ==> %s\n",
+			       offset,
+			       offset + len - 1,
+			       str_output);
+
+		} else {
 			ret = spi_flash_write(flash, offset, len, buf);
+		}
 
 		printf("SF: %zu bytes @ %#x %s: ", (size_t)len, (u32)offset,
 		       read ? "Read" : "Written");
