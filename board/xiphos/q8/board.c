@@ -468,6 +468,11 @@ int board_late_init(void)
 	else
 		env_set(ep->key, ep->data);
 
+	if (xscinfo_get("md5", &ep, &is_rw))
+		puts("md5 sum not found\n");
+	else
+		env_set(ep->key, ep->data);
+
 	return 0;
 }
 
