@@ -44,6 +44,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"config_done=echo sending config_done (x3); pa3 config; pa3 config; pa3 config\0" \
 	"bootargs=console=ttyPS0,115200 earlycon clk_ignore_unused\0" \
+	"skip_rootfs_ckecksum=no\0" \
 	\
 	"bitstream_ram_addr=0x40000000\0" \
 	"kernel_ram_addr=0x00500000\0" \
@@ -57,13 +58,21 @@
 	"tftpprefix=q8\0" \
 	\
 	"debug= " \
-		"setenv tftpprefix debug\0" \
+		"setenv tftpprefix debug; " \
+		"setenv skip_rootfs_ckecksum yes;\0" \
 	\
 	"lub= " \
 		"dhcp && "\
 		"tftpboot " __stringify(CONFIG_SYS_TEXT_BASE) " ${tftpserver}:${tftpprefix}/u-boot.bin && " \
 		"go " __stringify(CONFIG_SYS_TEXT_BASE) "\0" \
 	"load_scratch_env=env import -b 0xa2402000 0x100\0" \
+	"check_rootfs_md5= " \
+		"sf probe 0 && " \
+		"sf read 0x10000 ${xsc_prefix}-rootfs && " \
+		"echo == Expected checksum:   ${md5} && " \
+		"echo == Calculated checksum: ${sf_md5sum} && " \
+		"if test \"${sf_md5sum}\" = \"${md5}\"; then true; " \
+		"else echo == ABORT: rootfs checksum mismatch!; false; fi \0" \
 	"load_tftp= " \
 		"dhcp && " \
 		"tftpboot ${dtb_ram_addr} ${tftpserver}:${tftpprefix}/devicetree.img && " \
@@ -74,6 +83,11 @@
 		"fpga loadb 0 ${bitstream_ram_addr} $filesize\0" \
 	"load_nor= " \
 		"sf probe 0 && " \
+		"if test \"${skip_rootfs_ckecksum}\" = \"yes\"; then " \
+			"echo == Skip rootfs checksum; true; " \
+		"else " \
+			"run check_rootfs_md5; " \
+		"fi && " \
 		"mtdparts && " \
 		"ubi part ${xsc_prefix}-rootfs && " \
 		"ubifsmount ubi0:q8-reva-rootfs && " \
