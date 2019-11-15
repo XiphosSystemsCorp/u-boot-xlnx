@@ -67,12 +67,16 @@
 		"go " __stringify(CONFIG_SYS_TEXT_BASE) "\0" \
 	"load_scratch_env=env import -b 0xa2402000 0x100\0" \
 	"check_rootfs_md5= " \
-		"sf probe 0 && " \
-		"sf read 0x10000 ${xsc_prefix}-rootfs && " \
-		"echo == Expected checksum:   ${md5} && " \
-		"echo == Calculated checksum: ${sf_md5sum} && " \
-		"if test \"${sf_md5sum}\" = \"${md5}\"; then true; " \
-		"else echo == ABORT: rootfs checksum mismatch!; false; fi \0" \
+		"if test \"${skip_rootfs_ckecksum}\" = \"yes\"; then " \
+			"echo == Skip rootfs checksum; true; " \
+		"else " \
+			"sf probe 0 && " \
+			"sf read 0x10000 ${xsc_prefix}-rootfs && " \
+			"echo == Expected checksum:   ${md5} && " \
+			"echo == Calculated checksum: ${sf_md5sum} && " \
+			"if test \"${sf_md5sum}\" = \"${md5}\"; then true; " \
+			"else echo == ABORT: rootfs checksum mismatch!; false; fi; " \
+		"fi \0" \
 	"load_tftp= " \
 		"dhcp && " \
 		"tftpboot ${dtb_ram_addr} ${tftpserver}:${tftpprefix}/devicetree.img && " \
@@ -83,11 +87,6 @@
 		"fpga loadb 0 ${bitstream_ram_addr} $filesize\0" \
 	"load_nor= " \
 		"sf probe 0 && " \
-		"if test \"${skip_rootfs_ckecksum}\" = \"yes\"; then " \
-			"echo == Skip rootfs checksum; true; " \
-		"else " \
-			"run check_rootfs_md5; " \
-		"fi && " \
 		"mtdparts && " \
 		"ubi part ${xsc_prefix}-rootfs && " \
 		"ubifsmount ubi0:q8-reva-rootfs && " \
@@ -100,7 +99,8 @@
 	"boot_initramfs= "\
 		"booti ${kernel_ram_addr} ${initramfs_ram_addr} ${dtb_ram_addr_no_header}\0" \
 	"boot_nor= " \
-		"setenv bootargs $bootargs serial=${serial} rootwait=1 ro rootfstype=ubifs ubi.mtd=${xsc_prefix}-rootfs root=ubi0:q8-reva-rootfs;" \
+		"setenv bootargs $bootargs serial=${serial} rootwait=1 ro rootfstype=ubifs ubi.mtd=${xsc_prefix}-rootfs root=ubi0:q8-reva-rootfs && " \
+		"run check_rootfs_md5 && " \
 		"booti ${kernel_ram_addr} - ${dtb_ram_addr_no_header}\0" \
 	\
 	"bootcmd=run boot_nor\0"
