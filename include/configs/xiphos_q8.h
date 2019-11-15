@@ -44,7 +44,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"config_done=echo sending config_done (x3); pa3 config; pa3 config; pa3 config\0" \
 	"bootargs=console=ttyPS0,115200 earlycon clk_ignore_unused\0" \
-	"skip_rootfs_ckecksum=no\0" \
+	"skip_rootfs_checksum=no\0" \
 	\
 	"bitstream_ram_addr=0x40000000\0" \
 	"kernel_ram_addr=0x00500000\0" \
@@ -59,7 +59,7 @@
 	\
 	"debug= " \
 		"setenv tftpprefix debug; " \
-		"setenv skip_rootfs_ckecksum yes;\0" \
+		"setenv skip_rootfs_checksum yes;\0" \
 	\
 	"lub= " \
 		"dhcp && "\
@@ -67,7 +67,7 @@
 		"go " __stringify(CONFIG_SYS_TEXT_BASE) "\0" \
 	"load_scratch_env=env import -b 0xa2402000 0x100\0" \
 	"check_rootfs_md5= " \
-		"if test \"${skip_rootfs_ckecksum}\" = \"yes\"; then " \
+		"if test \"${skip_rootfs_checksum}\" = \"yes\"; then " \
 			"echo == Skip rootfs checksum; true; " \
 		"else " \
 			"sf probe 0 && " \
