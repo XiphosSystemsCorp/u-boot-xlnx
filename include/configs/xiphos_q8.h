@@ -52,6 +52,7 @@
 	"dtb_ram_addr=0x00100000\0" \
 	"dtb_ram_addr_no_header=0x00100040\0" \
 	"initramfs_ram_addr=0x02000000\0" \
+	"rootfs_checksum_ram_addr=0x50000000\0" \
 	\
 	"autoload=no\0" \
 	"tftpserver=192.168.200.113\0" \
@@ -71,7 +72,7 @@
 			"echo == Skip rootfs checksum; true; " \
 		"else " \
 			"sf probe 0 && " \
-			"sf read 0x10000 ${xsc_prefix}-rootfs && " \
+			"sf read ${rootfs_checksum_ram_addr} ${xsc_prefix}-rootfs && " \
 			"echo == Expected checksum:   ${md5} && " \
 			"echo == Calculated checksum: ${sf_md5sum} && " \
 			"if test \"${sf_md5sum}\" = \"${md5}\"; then true; " \
